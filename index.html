@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Procurement Desk</title>
+<style>
+:root{--bg:#eef1f4;--card:#fff;--tx:#17212b;--mut:#64707d;--bd:#dde2e8;--ac:#0f766e;--acs:#d9f0ec;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--hd:#10272b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12181d;--card:#1b242b;--tx:#e6ebf0;--mut:#93a0ad;--bd:#2c3943;--ac:#2dd4bf;--acs:#173a38;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--hd:#0b1418;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12181d;--card:#1b242b;--tx:#e6ebf0;--mut:#93a0ad;--bd:#2c3943;--ac:#2dd4bf;--acs:#173a38;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--hd:#0b1418;color-scheme:dark}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+header{background:var(--hd);color:#fff;padding:12px 18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+header h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.2px}header .sub{color:#9fb3b8;font-size:12px}
+nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
+nav button{background:none;border:0;color:#b9c8cc;padding:8px 14px;border-radius:6px;font:inherit;cursor:pointer}
+nav button.on{background:var(--ac);color:#06201d;font-weight:600}nav button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+main{max-width:1180px;margin:0 auto;padding:16px}
+section.tab{display:none}section.tab.on{display:block}
+details.pane{background:var(--card);border:1px solid var(--bd);border-radius:8px;margin-bottom:14px}
+details.pane>summary{cursor:pointer;padding:11px 14px;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px}
+details.pane>summary::before{content:"▸";color:var(--mut);transition:transform .15s}details.pane[open]>summary::before{transform:rotate(90deg)}
+details.pane>summary .r{margin-left:auto;font-weight:400;color:var(--mut);font-size:12px}
+.pb{padding:4px 14px 14px;border-top:1px solid var(--bd)}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
+.kpi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:12px 14px}.kpi b{display:block;font-size:24px;font-variant-numeric:tabular-nums}.kpi span{color:var(--mut);font-size:12px}
+.kpi.bad b{color:var(--bad)}.kpi.warn b{color:var(--warn)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;padding-top:12px}
+label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mut)}
+input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:7px 9px;min-width:0;width:100%}
+.btn{background:var(--ac);color:#04201d;border:0;border-radius:6px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn.g{background:none;color:var(--tx);border:1px solid var(--bd);font-weight:500}.btn.s{padding:4px 9px;font-size:12px}.btn.d{color:var(--bad)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:820px}
+th{text-align:left;font-size:12px;color:var(--mut);font-weight:600;padding:8px;border-bottom:1px solid var(--bd)}td{padding:8px;border-bottom:1px solid var(--bd);vertical-align:top}
+tr.det td{background:var(--bg)}.num{text-align:right;font-variant-numeric:tabular-nums}
+.chip{display:inline-block;padding:1px 8px;border-radius:99px;font-size:11px;background:var(--bg);border:1px solid var(--bd);color:var(--mut)}
+.chip.ok{background:var(--acs);color:var(--ok);border-color:transparent}.chip.bad{color:var(--bad);border-color:var(--bad)}.chip.warn{color:var(--warn);border-color:var(--warn)}
+.lnk{background:none;border:0;color:var(--ac);font:inherit;font-weight:600;cursor:pointer;padding:0}
+.mut{color:var(--mut)}.ck{background:var(--bg);border:1px solid var(--bd);border-radius:8px;padding:10px 12px;display:flex;flex-direction:column;gap:3px}
+.ckh{display:flex;flex-direction:column}.big{font-size:26px;font-weight:600;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.bar{display:flex;align-items:center;gap:8px;margin:5px 0}.bar i{display:block;height:9px;background:var(--ac);border-radius:4px;min-width:2px}.bar span:first-child{width:110px}
+ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.two{grid-template-columns:1fr}nav{margin-left:0}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important}}
+</style></head><body>
+<header><div><h1>Procurement Desk</h1><div class="sub">Orders, suppliers and time zones in one place</div></div><nav id="nav"></nav></header>
+<main>
+<section class="tab" id="t-dash">
+ <div class="kpis" id="kpis"></div>
+ <div class="two"><div>
+  <details class="pane" open><summary>Needs attention<span class="r" id="attN"></span></summary><div class="pb" id="att"></div></details>
+  <details class="pane" open><summary>Pipeline by status</summary><div class="pb" id="pipe"></div></details>
+ </div><div>
+  <details class="pane" open><summary>Pinned clocks<span class="r"><button class="lnk" onclick="show('clock')">Manage</button></span></summary><div class="pb"><div class="grid" id="dashClk" style="margin-top:10px"></div></div></details>
+  <details class="pane"><summary>Open value by currency</summary><div class="pb" id="val"></div></details>
+ </div></div>
+</section>
+
+<section class="tab" id="t-po">
+ <details class="pane" id="formPane"><summary id="formT">New purchase order</summary><div class="pb">
+ <form id="poForm"><div class="fg">
+  <label>Supplier<input id="f_sup" required placeholder="Supplier name"></label>
+  <label>Supplier country<select id="f_cc"></select></label>
+  <label>Item / description<input id="f_item" required></label>
+  <label>Quantity<input id="f_qty" type="number" min="0" step="any" value="1" required></label>
+  <label>Unit price<input id="f_pr" type="number" min="0" step="any" value="0" required></label>
+  <label>Currency<select id="f_cur"></select></label>
+  <label>Order date<input id="f_od" type="date" required></label>
+  <label>Expected delivery<input id="f_eta" type="date" required></label>
+  <label>Status<select id="f_st"></select></label>
+  <label>Carrier<input id="f_car" placeholder="e.g. DHL, Maersk"></label>
+  <label>Tracking / B/L number<input id="f_trk"></label>
+  <label>Notes<input id="f_nt"></label>
+ </div><div class="row"><button class="btn" id="saveBtn" type="submit">Save PO</button><button class="btn g" type="button" id="cancelBtn">Clear form</button></div></form></div></details>
+
+ <details class="pane"><summary>Search and filter</summary><div class="pb"><div class="fg">
+  <label>Search<input id="q" placeholder="PO number, supplier, item, tracking…"></label>
+  <label>Status<select id="fs"></select></label>
+  <label>Show<select id="fv"><option value="">All orders</option><option value="open">Open only</option><option value="late">Overdue only</option></select></label>
+ </div></div></details>
+
+ <details class="pane" open><summary>Purchase orders<span class="r" id="poCount"></span></summary><div class="pb"><div class="tw"><table>
+  <thead><tr><th>PO</th><th>Supplier</th><th>Item</th><th class="num">Value</th><th>Delivery</th><th>Status</th><th>Supplier time</th></tr></thead><tbody id="poBody"></tbody></table></div></div></details>
+</section>
+
+<section class="tab" id="t-clock">
+ <details class="pane" open><summary>Find a time zone</summary><div class="pb">
+  <label style="margin-top:12px">Search by country, code, city or offset<input id="cq" placeholder="Try: Ghana, DE, Shenzhen, UTC+8, EST, Asia/Dubai" autocomplete="off"></label>
+  <div class="grid" id="cres" style="margin-top:12px"></div></div></details>
+ <details class="pane" open><summary>Pinned clocks<span class="r" id="pinN"></span></summary><div class="pb"><div class="grid" id="pins" style="margin-top:10px"></div>
+  <p class="mut">Business hours are 08:00–18:00, Monday to Friday, in the local zone.</p></div></details>
+</section>
+</main>
+<script>
+const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const store={get(k,d){try{const v=localStorage.getItem(k);return v?JSON.parse(v):d}catch(e){return d}},set(k,v){try{localStorage.setItem(k,JSON.stringify(v))}catch(e){}}};
+const CC="US,United States,America/New_York America/Chicago America/Denver America/Los_Angeles America/Anchorage Pacific/Honolulu;CA,Canada,America/Toronto America/Vancouver America/Edmonton America/Halifax;MX,Mexico,America/Mexico_City;BR,Brazil,America/Sao_Paulo America/Manaus;AR,Argentina,America/Argentina/Buenos_Aires;CL,Chile,America/Santiago;CO,Colombia,America/Bogota;PE,Peru,America/Lima;PA,Panama,America/Panama;JM,Jamaica,America/Jamaica;GB,United Kingdom,Europe/London;IE,Ireland,Europe/Dublin;FR,France,Europe/Paris;DE,Germany,Europe/Berlin;ES,Spain,Europe/Madrid;PT,Portugal,Europe/Lisbon;IT,Italy,Europe/Rome;NL,Netherlands,Europe/Amsterdam;BE,Belgium,Europe/Brussels;LU,Luxembourg,Europe/Luxembourg;CH,Switzerland,Europe/Zurich;AT,Austria,Europe/Vienna;SE,Sweden,Europe/Stockholm;NO,Norway,Europe/Oslo;DK,Denmark,Europe/Copenhagen;FI,Finland,Europe/Helsinki;IS,Iceland,Atlantic/Reykjavik;PL,Poland,Europe/Warsaw;CZ,Czechia,Europe/Prague;SK,Slovakia,Europe/Bratislava;HU,Hungary,Europe/Budapest;RO,Romania,Europe/Bucharest;BG,Bulgaria,Europe/Sofia;GR,Greece,Europe/Athens;TR,Türkiye (Turkey),Europe/Istanbul;UA,Ukraine,Europe/Kyiv;RU,Russia,Europe/Moscow Asia/Yekaterinburg Asia/Novosibirsk Asia/Vladivostok;EE,Estonia,Europe/Tallinn;LV,Latvia,Europe/Riga;LT,Lithuania,Europe/Vilnius;HR,Croatia,Europe/Zagreb;RS,Serbia,Europe/Belgrade;SI,Slovenia,Europe/Ljubljana;AE,United Arab Emirates,Asia/Dubai;SA,Saudi Arabia,Asia/Riyadh;QA,Qatar,Asia/Qatar;KW,Kuwait,Asia/Kuwait;BH,Bahrain,Asia/Bahrain;OM,Oman,Asia/Muscat;IL,Israel,Asia/Jerusalem;JO,Jordan,Asia/Amman;LB,Lebanon,Asia/Beirut;IR,Iran,Asia/Tehran;IQ,Iraq,Asia/Baghdad;GH,Ghana,Africa/Accra;NG,Nigeria,Africa/Lagos;KE,Kenya,Africa/Nairobi;ZA,South Africa,Africa/Johannesburg;EG,Egypt,Africa/Cairo;MA,Morocco,Africa/Casablanca;DZ,Algeria,Africa/Algiers;TN,Tunisia,Africa/Tunis;ET,Ethiopia,Africa/Addis_Ababa;TZ,Tanzania,Africa/Dar_es_Salaam;UG,Uganda,Africa/Kampala;CI,Côte d’Ivoire (Ivory Coast),Africa/Abidjan;SN,Senegal,Africa/Dakar;CM,Cameroon,Africa/Douala;AO,Angola,Africa/Luanda;ZM,Zambia,Africa/Lusaka;ZW,Zimbabwe,Africa/Harare;MU,Mauritius,Indian/Mauritius;IN,India,Asia/Kolkata;PK,Pakistan,Asia/Karachi;BD,Bangladesh,Asia/Dhaka;LK,Sri Lanka,Asia/Colombo;NP,Nepal,Asia/Kathmandu;CN,China,Asia/Shanghai;HK,Hong Kong,Asia/Hong_Kong;TW,Taiwan,Asia/Taipei;JP,Japan,Asia/Tokyo;KR,South Korea,Asia/Seoul;SG,Singapore,Asia/Singapore;MY,Malaysia,Asia/Kuala_Lumpur;TH,Thailand,Asia/Bangkok;VN,Vietnam,Asia/Ho_Chi_Minh;ID,Indonesia,Asia/Jakarta Asia/Makassar Asia/Jayapura;PH,Philippines,Asia/Manila;KH,Cambodia,Asia/Phnom_Penh;MM,Myanmar,Asia/Yangon;KZ,Kazakhstan,Asia/Almaty;UZ,Uzbekistan,Asia/Tashkent;AU,Australia,Australia/Sydney Australia/Melbourne Australia/Brisbane Australia/Adelaide Australia/Perth Australia/Darwin;NZ,New Zealand,Pacific/Auckland";
+const COUNTRIES=CC.split(";").map(r=>{const[c,n,z]=r.split(",");return{c,n,z:z.split(" ")}}).sort((a,b)=>a.n.localeCompare(b.n));
+const cn=c=>(COUNTRIES.find(x=>x.c===c)||{}).n||c||"";
+const flag=c=>c&&c.length==2?String.fromCodePoint(...[...c].map(h=>127397+h.charCodeAt(0))):"🌐";
+let ALLZ=[];try{ALLZ=Intl.supportedValuesOf("timeZone")}catch(e){}
+const Z2C={};COUNTRIES.forEach(x=>x.z.forEach(z=>{Z2C[z]=x.c;if(!ALLZ.includes(z))ALLZ.push(z)}));if(!ALLZ.includes("UTC"))ALLZ.push("UTC");
+const ALIAS={est:"America/New_York",edt:"America/New_York",cst:"America/Chicago",mst:"America/Denver",pst:"America/Los_Angeles",pdt:"America/Los_Angeles",gmt:"Africa/Accra",bst:"Europe/London",cet:"Europe/Paris",cest:"Europe/Paris",eet:"Europe/Athens",msk:"Europe/Moscow",wat:"Africa/Lagos",eat:"Africa/Nairobi",sast:"Africa/Johannesburg",gst:"Asia/Dubai",ist:"Asia/Kolkata",sgt:"Asia/Singapore",hkt:"Asia/Hong_Kong",jst:"Asia/Tokyo",kst:"Asia/Seoul",aest:"Australia/Sydney",nzst:"Pacific/Auckland",brt:"America/Sao_Paulo"};
+const city=z=>z.split("/").pop().replace(/_/g," ");
+const fm={};const F=(z,o)=>{const k=z+JSON.stringify(o);return fm[k]||(fm[k]=new Intl.DateTimeFormat("en-GB",{timeZone:z,...o}))};
+function info(z,d=new Date()){let off="";try{off=F(z,{timeZoneName:"shortOffset"}).formatToParts(d).find(p=>p.type==="timeZoneName").value.replace("GMT","UTC");if(off==="UTC")off="UTC+0"}catch(e){}
+ const h=+F(z,{hour:"numeric",hour12:false}).format(d)%24,wd=F(z,{weekday:"short"}).format(d);
+ return{t:F(z,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(d),dt:F(z,{weekday:"short",day:"numeric",month:"short"}).format(d),off,open:h>=8&&h<18&&wd!=="Sat"&&wd!=="Sun"}}
+function offMin(z){const m=info(z).off.match(/([+-])(\d+)(?::(\d+))?/);return m?(m[1]=="-"?-1:1)*(+m[2]*60+ +(m[3]||0)):0}
+function search(q){q=q.trim().toLowerCase();if(!q)return[];const out=[],add=z=>{if(!out.includes(z))out.push(z)};
+ if(ALIAS[q])add(ALIAS[q]);
+ COUNTRIES.forEach(x=>{if(x.c.toLowerCase()===q||x.n.toLowerCase().includes(q))x.z.forEach(add)});
+ ALLZ.forEach(z=>{if(z.toLowerCase().replace(/_/g," ").includes(q))add(z)});
+ const m=q.match(/^(?:utc|gmt)?\s*([+-])(\d{1,2})(?::?(\d{2}))?$/);
+ if(m){const w=(m[1]=="-"?-1:1)*(+m[2]*60+ +(m[3]||0));ALLZ.forEach(z=>{if(offMin(z)===w)add(z)})}
+ return out.slice(0,24)}
+const clock=(z,btn)=>{const c=Z2C[z],i=info(z);return`<div class="ck"><div class="ckh"><b>${c?flag(c)+" ":""}${esc(city(z))}</b><span class="mut">${c?esc(cn(c)):esc(z.split("/")[0])} · ${esc(z)}</span></div><div class="big" data-t="${z}">${i.t}</div><div class="mut" data-d="${z}">${i.dt} · ${i.off}</div><div class="row" style="margin-top:4px"><span class="chip ${i.open?"ok":""}" data-o="${z}">${i.open?"Business hours":"Closed"}</span>${btn||""}</div></div>`};
+function tick(){const d=new Date();
+ document.querySelectorAll("[data-t]").forEach(e=>e.textContent=info(e.dataset.t,d).t);
+ document.querySelectorAll("[data-d]").forEach(e=>{const i=info(e.dataset.d,d);e.textContent=i.dt+" · "+i.off});
+ document.querySelectorAll("[data-o]").forEach(e=>{const o=info(e.dataset.o,d).open;e.textContent=o?"Business hours":"Closed";e.className="chip "+(o?"ok":"")});
+ document.querySelectorAll("[data-st]").forEach(e=>{const i=info(e.dataset.st,d);e.innerHTML=i.t.slice(0,5)+` <span class="chip ${i.open?"ok":""}">${i.open?"open":"closed"}</span>`})}
+let pins=store.get("pd_pins",["UTC","Asia/Shanghai","Europe/London","America/New_York"]);
+function renderClock(){
+ $("#pins").innerHTML=pins.map(z=>clock(z,`<button class="btn g s" onclick="unpin('${z}')">Remove</button>`)).join("")||'<p class="mut">No clocks pinned. Search above and pin a zone.</p>';
+ $("#pinN").textContent=pins.length+" pinned";
+ $("#dashClk").innerHTML=pins.slice(0,6).map(z=>clock(z)).join("");
+ const r=search($("#cq").value);$("#cres").innerHTML=$("#cq").value.trim()?(r.map(z=>clock(z,pins.includes(z)?'<span class="chip">Pinned</span>':`<button class="btn s" onclick="pin('${z}')">Pin</button>`)).join("")||'<p class="mut">No match. Try a country name, a two-letter code, a city or an offset like UTC+3.</p>'):""}
+function pin(z){if(!pins.includes(z))pins.push(z);store.set("pd_pins",pins);renderClock()}
+function unpin(z){pins=pins.filter(x=>x!==z);store.set("pd_pins",pins);renderClock()}
+
+const STATUS=["Draft","Sent to supplier","Confirmed","In production","Shipped","In customs","Delivered","Closed","Cancelled"],DONE=["Delivered","Closed","Cancelled"],CUR=["USD","EUR","GBP","GHS","CNY","INR","JPY","AED","ZAR","NGN"];
+const today=()=>new Date().toISOString().slice(0,10),addD=n=>new Date(Date.now()+n*864e5).toISOString().slice(0,10);
+const dd=s=>Math.round((new Date(s)-new Date(today()))/864e5);
+let S=store.get("pd_pos",null),seq=store.get("pd_seq",0),editId=null,openId=null;
+const mk=(sup,cc,item,qty,pr,cur,od,eta,st,car,trk)=>({id:"p"+(++seq),no:"PO-"+new Date().getFullYear()+"-"+String(seq).padStart(4,"0"),sup,cc,item,qty,pr,cur,od,eta,st,car,trk,nt:"",log:[{d:od,t:"PO created ("+st+")"}]});
+if(!S){S=[mk("Shenzhen Brightline Co.","CN","LED panels 60x60",400,18.5,"USD",addD(-30),addD(-3),"Shipped","Maersk","MSKU7782341"),mk("Rhein Pumpen GmbH","DE","Centrifugal pumps",12,940,"EUR",addD(-12),addD(9),"In production","DHL Freight",""),mk("Lagos Packaging Ltd","NG","Corrugated cartons",5000,0.42,"USD",addD(-2),addD(20),"Sent to supplier","","")];save()}
+function save(){store.set("pd_pos",S);store.set("pd_seq",seq)}
+const late=p=>!DONE.includes(p.st)&&p.eta&&dd(p.eta)<0,isOpen=p=>!DONE.includes(p.st),val=p=>p.qty*p.pr,money=(v,c)=>c+" "+v.toLocaleString(undefined,{maximumFractionDigits:2});
+const tzOf=cc=>((COUNTRIES.find(x=>x.c===cc)||{z:[]}).z[0]);
+function renderDash(){const o=S.filter(isOpen),l=S.filter(late),soon=o.filter(p=>!late(p)&&dd(p.eta)<=7);
+ $("#kpis").innerHTML=`<div class="kpi"><b>${o.length}</b><span>Open orders</span></div><div class="kpi ${l.length?"bad":""}"><b>${l.length}</b><span>Overdue</span></div><div class="kpi ${soon.length?"warn":""}"><b>${soon.length}</b><span>Due within 7 days</span></div><div class="kpi"><b>${S.filter(p=>p.st=="Shipped"||p.st=="In customs").length}</b><span>In transit</span></div>`;
+ const at=[...l,...soon];$("#attN").textContent=at.length+" orders";
+ $("#att").innerHTML=at.length?at.map(p=>`<div class="bar"><button class="lnk" onclick="gotoPO('${p.id}')">${p.no}</button><span>${esc(p.sup)}</span><span class="chip ${late(p)?"bad":"warn"}">${late(p)?-dd(p.eta)+" days late":"due in "+dd(p.eta)+" days"}</span></div>`).join(""):'<p class="mut">Nothing is late or due this week.</p>';
+ const mx=Math.max(1,...STATUS.map(s=>S.filter(p=>p.st==s).length));
+ $("#pipe").innerHTML=STATUS.map(s=>{const n=S.filter(p=>p.st==s).length;return`<div class="bar"><span>${s}</span><i style="width:${n/mx*60}%"></i><b>${n}</b></div>`}).join("");
+ const by={};o.forEach(p=>by[p.cur]=(by[p.cur]||0)+val(p));
+ $("#val").innerHTML=Object.keys(by).map(c=>`<div class="bar"><span>${c}</span><b>${by[c].toLocaleString(undefined,{maximumFractionDigits:0})}</b></div>`).join("")||'<p class="mut">No open orders.</p>'}
+function renderPO(){const q=$("#q").value.toLowerCase(),fs=$("#fs").value,fv=$("#fv").value;
+ const L=S.filter(p=>(!q||[p.no,p.sup,p.item,p.trk,p.car].join(" ").toLowerCase().includes(q))&&(!fs||p.st==fs)&&(fv!="open"||isOpen(p))&&(fv!="late"||late(p))).reverse();
+ $("#poCount").textContent=L.length+" of "+S.length;
+ $("#poBody").innerHTML=L.map(p=>{const z=tzOf(p.cc),x=late(p);let h=`<tr><td><button class="lnk" onclick="tg('${p.id}')">${p.no}</button></td><td>${flag(p.cc)} ${esc(p.sup)}<div class="mut">${esc(cn(p.cc))}</div></td><td>${esc(p.item)}<div class="mut">${p.qty} × ${p.pr}</div></td><td class="num">${money(val(p),p.cur)}</td><td>${p.eta||""}${x?` <span class="chip bad">${-dd(p.eta)}d late</span>`:""}</td><td><span class="chip ${p.st=="Delivered"||p.st=="Closed"?"ok":x?"bad":""}">${p.st}</span></td><td>${z?`<span data-st="${z}"></span>`:""}</td></tr>`;
+  if(openId==p.id)h+=`<tr class="det"><td colspan="7"><div class="two"><div><b>Tracking</b><div class="mut">${esc(p.car)||"No carrier"} · ${esc(p.trk)||"no tracking number"}</div><ul class="log">${p.log.map(e=>`<li><span class="mut">${e.d}</span> ${esc(e.t)}</li>`).join("")}</ul>${p.nt?`<div class="mut">Notes: ${esc(p.nt)}</div>`:""}</div><div><label>Update status<select onchange="setSt('${p.id}',this.value)">${STATUS.map(s=>`<option ${s==p.st?"selected":""}>${s}</option>`).join("")}</select></label><label style="margin-top:8px">Add tracking update<input id="ev_${p.id}" placeholder="e.g. Departed Shenzhen port" onkeydown="if(event.key=='Enter')addEv('${p.id}')"></label><div class="row"><button class="btn s" onclick="addEv('${p.id}')">Add update</button><button class="btn g s" onclick="edit('${p.id}')">Edit PO</button><button class="btn g s d" onclick="del('${p.id}')">Delete</button></div></div></div></td></tr>`;return h}).join("")||'<tr><td colspan="7" class="mut">No orders match. Open “New purchase order” to add one.</td></tr>';tick()}
+const tg=id=>{openId=openId==id?null:id;renderPO()};
+function gotoPO(id){openId=id;show("po")}
+function setSt(id,s){const p=S.find(x=>x.id==id);if(p.st!=s){p.st=s;p.log.push({d:today(),t:"Status changed to "+s});save();renderPO();renderDash()}}
+function addEv(id){const i=$("#ev_"+id),p=S.find(x=>x.id==id);if(!i.value.trim())return;p.log.push({d:today(),t:i.value.trim()});save();renderPO()}
+function del(id){if(confirm("Delete this purchase order?")){S=S.filter(p=>p.id!=id);openId=null;save();renderPO();renderDash()}}
+function edit(id){const p=S.find(x=>x.id==id);editId=id;const m={sup:"sup",cc:"cc",item:"item",qty:"qty",pr:"pr",cur:"cur",od:"od",eta:"eta",st:"st",car:"car",trk:"trk",nt:"nt"};for(const k in m)$("#f_"+k).value=p[k]??"";$("#formT").textContent="Edit "+p.no;$("#formPane").open=true;$("#formPane").scrollIntoView()}
+function resetForm(){editId=null;$("#poForm").reset();$("#f_od").value=today();$("#f_eta").value=addD(30);$("#formT").textContent="New purchase order"}
+$("#poForm").onsubmit=e=>{e.preventDefault();const v=k=>$("#f_"+k).value;const d={sup:v("sup").trim(),cc:v("cc"),item:v("item").trim(),qty:+v("qty"),pr:+v("pr"),cur:v("cur"),od:v("od"),eta:v("eta"),st:v("st"),car:v("car").trim(),trk:v("trk").trim(),nt:v("nt").trim()};
+ if(editId){const p=S.find(x=>x.id==editId);if(p.st!=d.st)p.log.push({d:today(),t:"Status changed to "+d.st});Object.assign(p,d);p.log.push({d:today(),t:"PO edited"})}else{const p=mk(d.sup,d.cc,d.item,d.qty,d.pr,d.cur,d.od,d.eta,d.st,d.car,d.trk);p.nt=d.nt;S.push(p);openId=p.id}
+ save();resetForm();$("#formPane").open=false;renderPO();renderDash()};
+$("#cancelBtn").onclick=resetForm;
+$("#f_cc").innerHTML=COUNTRIES.map(c=>`<option value="${c.c}">${esc(c.n)} (${c.c})</option>`).join("");$("#f_cc").value="CN";
+$("#f_cur").innerHTML=CUR.map(c=>`<option>${c}</option>`).join("");
+$("#f_st").innerHTML=STATUS.map(s=>`<option>${s}</option>`).join("");
+$("#fs").innerHTML='<option value="">All statuses</option>'+STATUS.map(s=>`<option>${s}</option>`).join("");
+["q","fs","fv"].forEach(i=>$("#"+i).oninput=renderPO);$("#cq").oninput=renderClock;
+
+/* Module registry: add a new feature by appending one entry here plus a <section class="tab" id="t-ID"> */
+const MODULES=[{id:"dash",label:"Dashboard",render:renderDash},{id:"po",label:"Purchase orders",render:renderPO},{id:"clock",label:"World clock",render:renderClock}];
+$("#nav").innerHTML=MODULES.map(m=>`<button data-m="${m.id}" onclick="show('${m.id}')">${m.label}</button>`).join("");
+function show(id){MODULES.forEach(m=>{$("#t-"+m.id).classList.toggle("on",m.id==id);document.querySelector(`[data-m="${m.id}"]`).classList.toggle("on",m.id==id)});MODULES.find(m=>m.id==id).render();renderClock&&id!="clock"&&id=="dash"&&renderClock();tick();try{history.replaceState(null,"","#"+id)}catch(e){}window.scrollTo(0,0)}
+resetForm();show(MODULES.some(m=>"#"+m.id==location.hash)?location.hash.slice(1):"dash");setInterval(tick,1000);
+</script></body></html>
