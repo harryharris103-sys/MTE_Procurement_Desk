@@ -6,13 +6,18 @@
 :root{--bg:#eef1f4;--card:#fff;--tx:#17212b;--mut:#64707d;--bd:#dde2e8;--ac:#0f766e;--acs:#d9f0ec;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--hd:#10272b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12181d;--card:#1b242b;--tx:#e6ebf0;--mut:#93a0ad;--bd:#2c3943;--ac:#2dd4bf;--acs:#173a38;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--hd:#0b1418;color-scheme:dark}}
 :root[data-theme="dark"]{--bg:#12181d;--card:#1b242b;--tx:#e6ebf0;--mut:#93a0ad;--bd:#2c3943;--ac:#2dd4bf;--acs:#173a38;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--hd:#0b1418;color-scheme:dark}
+:root[data-theme="amoled"]{--bg:#000;--card:#0a0a0a;--tx:#eee;--mut:#8a94a0;--bd:#222;--ac:#2dd4bf;--acs:#0d2b29;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--hd:#000;color-scheme:dark}
+:root[data-theme="ocean"]{--bg:#e6f0fa;--card:#fff;--tx:#0b2540;--mut:#587390;--bd:#c9dbed;--ac:#1d63c8;--acs:#dbe9fb;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--hd:#0b2a52;--bt:#fff;color-scheme:light}
+:root[data-theme="midnight"]{--bg:#0e1424;--card:#151d33;--tx:#e4e9f5;--mut:#8d9ab8;--bd:#25304e;--ac:#7aa2ff;--acs:#1b2a52;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--hd:#0a0f1d;color-scheme:dark}
+.paper{color-scheme:light}.paper th{color:#555}.paper td,.paper th{border-color:#ddd}
+@media print{body>header,.noprint{display:none!important}body{background:#fff}details.pane{border:0}}
 *{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 header{background:var(--hd);color:#fff;padding:12px 18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 header h1{font-size:17px;margin:0;font-weight:650;letter-spacing:.2px}header .sub{color:#9fb3b8;font-size:12px}
 nav{display:flex;gap:4px;margin-left:auto;flex-wrap:wrap}
 nav button{background:none;border:0;color:#b9c8cc;padding:8px 14px;border-radius:6px;font:inherit;cursor:pointer}
-nav button.on{background:var(--ac);color:#06201d;font-weight:600}nav button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
+nav button.on{background:var(--ac);color:var(--bt,#06201d);font-weight:600}nav button:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,summary:focus-visible{outline:2px solid var(--ac);outline-offset:2px}
 main{max-width:1180px;margin:0 auto;padding:16px}
 section.tab{display:none}section.tab.on{display:block}
 details.pane{background:var(--card);border:1px solid var(--bd);border-radius:8px;margin-bottom:14px}
@@ -23,11 +28,11 @@ details.pane>summary .r{margin-left:auto;font-weight:400;color:var(--mut);font-s
 .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:14px}
 .kpi{background:var(--card);border:1px solid var(--bd);border-radius:8px;padding:12px 14px}.kpi b{display:block;font-size:24px;font-variant-numeric:tabular-nums}.kpi span{color:var(--mut);font-size:12px}
 .kpi.bad b{color:var(--bad)}.kpi.warn b{color:var(--warn)}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
 .fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;padding-top:12px}
 label{display:flex;flex-direction:column;gap:3px;font-size:12px;color:var(--mut)}
 input,select,textarea{font:inherit;color:var(--tx);background:var(--bg);border:1px solid var(--bd);border-radius:6px;padding:7px 9px;min-width:0;width:100%}
-.btn{background:var(--ac);color:#04201d;border:0;border-radius:6px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
+.btn{background:var(--ac);color:var(--bt,#04201d);border:0;border-radius:6px;padding:8px 14px;font:inherit;font-weight:600;cursor:pointer}
 .btn.g{background:none;color:var(--tx);border:1px solid var(--bd);font-weight:500}.btn.s{padding:4px 9px;font-size:12px}.btn.d{color:var(--bad)}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px}
 .tw{overflow-x:auto}table{border-collapse:collapse;width:100%;min-width:820px}
@@ -43,7 +48,7 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
 @media(max-width:760px){.two{grid-template-columns:1fr}nav{margin-left:0}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
 </style></head><body>
-<header><div><h1>Procurement Desk</h1><div class="sub">Orders, suppliers and time zones in one place</div></div><nav id="nav"></nav></header>
+<header><div><h1>Procurement Desk</h1><div class="sub">Orders, suppliers and time zones · <span id="ver"></span></div></div><select id="theme" aria-label="Theme" style="width:auto"><option value="">Theme: Auto</option><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option><option value="ocean">Ocean</option><option value="midnight">Midnight</option></select><nav id="nav"></nav></header>
 <main>
 <section class="tab" id="t-dash">
  <div class="kpis" id="kpis"></div>
@@ -53,6 +58,7 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
  </div><div>
   <details class="pane" open><summary>Pinned clocks<span class="r"><button class="lnk" onclick="show('clock')">Manage</button></span></summary><div class="pb"><div class="grid" id="dashClk" style="margin-top:10px"></div></div></details>
   <details class="pane"><summary>Open value by currency</summary><div class="pb" id="val"></div></details>
+  <details class="pane"><summary>Version history</summary><div class="pb" id="chg"></div></details>
  </div></div>
 </section>
 
@@ -64,13 +70,13 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
   <label>Item / description<input id="f_item" required></label>
   <label>Quantity<input id="f_qty" type="number" min="0" step="any" value="1" required></label>
   <label>Unit price<input id="f_pr" type="number" min="0" step="any" value="0" required></label>
-  <label>Currency<select id="f_cur"></select></label>
+  <label>Currency (type any code)<input id="f_cur" list="curs" value="USD" maxlength="10" required></label><datalist id="curs"></datalist>
   <label>Order date<input id="f_od" type="date" required></label>
   <label>Expected delivery<input id="f_eta" type="date" required></label>
   <label>Status<select id="f_st"></select></label>
   <label>Carrier<input id="f_car" placeholder="e.g. DHL, Maersk"></label>
   <label>Tracking / B/L number<input id="f_trk"></label>
-  <label>Notes<input id="f_nt"></label>
+  <label>Notes<input id="f_nt"></label><label>Supplier address<input id="f_sad"></label><label>Ship-to address<input id="f_sh"></label><label>Incoterm<input id="f_inc" placeholder="FOB, CIF, DAP…"></label><label>Payment terms<input id="f_pay" placeholder="30% advance, 70% on B/L"></label><label>Freight / other charges<input id="f_fr" type="number" step="any" value="0"></label><label>Tax %<input id="f_tx" type="number" step="any" value="0"></label>
  </div><div class="row"><button class="btn" id="saveBtn" type="submit">Save PO</button><button class="btn g" type="button" id="cancelBtn">Clear form</button></div></form></div></details>
 
  <details class="pane"><summary>Search and filter</summary><div class="pb"><div class="fg">
@@ -80,15 +86,36 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
  </div></div></details>
 
  <details class="pane" open><summary>Purchase orders<span class="r" id="poCount"></span></summary><div class="pb"><div class="tw"><table>
-  <thead><tr><th>PO</th><th>Supplier</th><th>Item</th><th class="num">Value</th><th>Delivery</th><th>Status</th><th>Supplier time</th></tr></thead><tbody id="poBody"></tbody></table></div></div></details>
+  <thead><tr><th>PO</th><th>Supplier</th><th>Item</th><th class="num">Value</th><th>Delivery</th><th>Status</th><th>Supplier time</th><th></th></tr></thead><tbody id="poBody"></tbody></table></div></div></details>
 </section>
 
 <section class="tab" id="t-clock">
  <details class="pane" open><summary>Find a time zone</summary><div class="pb">
-  <label style="margin-top:12px">Search by country, code, city or offset<input id="cq" placeholder="Try: Ghana, DE, Shenzhen, UTC+8, EST, Asia/Dubai" autocomplete="off"></label>
+  <div class="row"><label>Time format<select id="hfmt"><option value="24">24-hour</option><option value="12">12-hour (AM/PM)</option></select></label></div><label style="margin-top:12px">Search by country, code, city or offset<input id="cq" placeholder="Try: Ghana, DE, Shenzhen, UTC+8, EST, Asia/Dubai" autocomplete="off"></label>
   <div class="grid" id="cres" style="margin-top:12px"></div></div></details>
  <details class="pane" open><summary>Pinned clocks<span class="r" id="pinN"></span></summary><div class="pb"><div class="grid" id="pins" style="margin-top:10px"></div>
   <p class="mut">Business hours are 08:00–18:00, Monday to Friday, in the local zone.</p></div></details>
+</section>
+<section class="tab" id="t-src">
+ <details class="pane" open><summary>1. Describe what you need</summary><div class="pb">
+  <label style="margin-top:12px">Paste a specification (optional)<textarea id="s_raw" rows="3" placeholder="e.g. 500 pcs stainless steel 304 ball valves, 2 inch, PN16, ISO 9001, delivery to Tema, CIF"></textarea></label>
+  <div class="row"><button class="btn s" onclick="srcParse()">Break down into fields</button><span class="mut">Fields are best-guess; edit any of them.</span></div>
+  <div class="fg"><label>Product<input id="s_prod"></label><label>Material / grade<input id="s_mat"></label><label>Size / dimensions<input id="s_dim"></label><label>Quantity<input id="s_qty"></label><label>Standards / certifications<input id="s_cert"></label><label>Incoterm<input id="s_inc"></label><label>Destination<input id="s_dest"></label><label>Target price (kept out of the RFQ)<input id="s_bud"></label><label>Needed by<input id="s_by" type="date"></label><label>Other requirements<input id="s_oth"></label></div></div></details>
+ <details class="pane" open><summary>2. Search for sources</summary><div class="pb"><div class="fg"><label>Local market (country or city)<input id="s_loc" placeholder="Ghana, Accra"></label><label>Search keywords<input id="s_kw"></label></div><div class="row" id="s_links"></div></div></details>
+ <details class="pane" open><summary>3. RFQ email draft</summary><div class="pb">
+  <div class="fg"><label>Supplier / contact<input id="r_sup"></label><label>Supplier email<input id="r_em" type="email"></label><label>Your company<input id="r_co"></label><label>Your name<input id="r_me"></label><label>Reply by<input id="r_due" type="date"></label></div>
+  <label style="margin-top:10px">Subject<input id="r_sub"></label><label style="margin-top:10px">Message<textarea id="r_body" rows="14"></textarea></label>
+  <div class="row"><button class="btn" onclick="rfqGen()">Generate draft</button><button class="btn g" onclick="rfqSave()">Save draft</button><button class="btn g" onclick="rfqCopy()">Copy</button><a class="btn g" id="r_mail" style="text-decoration:none">Open in email app</a></div></div></details>
+ <details class="pane"><summary>Saved RFQ drafts<span class="r" id="rfqN"></span></summary><div class="pb" id="rfqList"></div></details>
+</section>
+<section class="tab" id="t-doc">
+ <details class="pane noprint" open><summary id="docT">New document</summary><div class="pb"><div class="fg">
+  <label>Type<select id="d_type"><option>Proforma Invoice</option><option>Invoice</option></select></label><label>Document no.<input id="d_no"></label><label>Date<input id="d_date" type="date"></label><label>Valid until / due date<input id="d_due" type="date"></label><label>Currency (type any code)<input id="d_cur" list="curs" maxlength="10"></label><label>PO / reference<input id="d_ref"></label><label>Seller name<input id="d_sn"></label><label>Seller address<input id="d_sa"></label><label>Buyer name<input id="d_bn"></label><label>Buyer address<input id="d_ba"></label><label>Incoterm<input id="d_inc"></label><label>Payment terms<input id="d_pay"></label><label>Discount %<input id="d_dis" type="number" step="any"></label><label>Tax %<input id="d_tax" type="number" step="any"></label><label>Freight / other charges<input id="d_fr" type="number" step="any"></label></div>
+  <div id="d_items" style="margin-top:10px"></div><div class="row"><button class="btn g s" onclick="addLine()">Add line</button></div>
+  <label style="margin-top:10px">Notes / bank details<textarea id="d_nt" rows="3"></textarea></label>
+  <div class="row"><button class="btn" onclick="docSave()">Save document</button><button class="btn g" onclick="docReset()">New blank document</button></div></div></details>
+ <details class="pane noprint"><summary>Saved documents<span class="r" id="docN"></span></summary><div class="pb" id="docList"></div></details>
+ <details class="pane" open><summary>Preview<span class="r noprint"><button class="btn g s" onclick="window.print()">Print / Save as PDF</button></span></summary><div class="pb" id="docView"></div></details>
 </section>
 </main>
 <script>
@@ -102,10 +129,10 @@ let ALLZ=[];try{ALLZ=Intl.supportedValuesOf("timeZone")}catch(e){}
 const Z2C={};COUNTRIES.forEach(x=>x.z.forEach(z=>{Z2C[z]=x.c;if(!ALLZ.includes(z))ALLZ.push(z)}));if(!ALLZ.includes("UTC"))ALLZ.push("UTC");
 const ALIAS={est:"America/New_York",edt:"America/New_York",cst:"America/Chicago",mst:"America/Denver",pst:"America/Los_Angeles",pdt:"America/Los_Angeles",gmt:"Africa/Accra",bst:"Europe/London",cet:"Europe/Paris",cest:"Europe/Paris",eet:"Europe/Athens",msk:"Europe/Moscow",wat:"Africa/Lagos",eat:"Africa/Nairobi",sast:"Africa/Johannesburg",gst:"Asia/Dubai",ist:"Asia/Kolkata",sgt:"Asia/Singapore",hkt:"Asia/Hong_Kong",jst:"Asia/Tokyo",kst:"Asia/Seoul",aest:"Australia/Sydney",nzst:"Pacific/Auckland",brt:"America/Sao_Paulo"};
 const city=z=>z.split("/").pop().replace(/_/g," ");
-const fm={};const F=(z,o)=>{const k=z+JSON.stringify(o);return fm[k]||(fm[k]=new Intl.DateTimeFormat("en-GB",{timeZone:z,...o}))};
+let H12=store.get("pd_12",false);const fm={};const F=(z,o)=>{const k=z+JSON.stringify(o);return fm[k]||(fm[k]=new Intl.DateTimeFormat("en-GB",{timeZone:z,...o}))};
 function info(z,d=new Date()){let off="";try{off=F(z,{timeZoneName:"shortOffset"}).formatToParts(d).find(p=>p.type==="timeZoneName").value.replace("GMT","UTC");if(off==="UTC")off="UTC+0"}catch(e){}
  const h=+F(z,{hour:"numeric",hour12:false}).format(d)%24,wd=F(z,{weekday:"short"}).format(d);
- return{t:F(z,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(d),dt:F(z,{weekday:"short",day:"numeric",month:"short"}).format(d),off,open:h>=8&&h<18&&wd!=="Sat"&&wd!=="Sun"}}
+ return{t:F(z,{hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:H12}).format(d),dt:F(z,{weekday:"short",day:"numeric",month:"short"}).format(d),off,open:h>=8&&h<18&&wd!=="Sat"&&wd!=="Sun"}}
 function offMin(z){const m=info(z).off.match(/([+-])(\d+)(?::(\d+))?/);return m?(m[1]=="-"?-1:1)*(+m[2]*60+ +(m[3]||0)):0}
 function search(q){q=q.trim().toLowerCase();if(!q)return[];const out=[],add=z=>{if(!out.includes(z))out.push(z)};
  if(ALIAS[q])add(ALIAS[q]);
@@ -119,7 +146,7 @@ function tick(){const d=new Date();
  document.querySelectorAll("[data-t]").forEach(e=>e.textContent=info(e.dataset.t,d).t);
  document.querySelectorAll("[data-d]").forEach(e=>{const i=info(e.dataset.d,d);e.textContent=i.dt+" · "+i.off});
  document.querySelectorAll("[data-o]").forEach(e=>{const o=info(e.dataset.o,d).open;e.textContent=o?"Business hours":"Closed";e.className="chip "+(o?"ok":"")});
- document.querySelectorAll("[data-st]").forEach(e=>{const i=info(e.dataset.st,d);e.innerHTML=i.t.slice(0,5)+` <span class="chip ${i.open?"ok":""}">${i.open?"open":"closed"}</span>`})}
+ document.querySelectorAll("[data-st]").forEach(e=>{const i=info(e.dataset.st,d);e.innerHTML=i.t.replace(/^(\d+:\d+):\d+/,"$1")+` <span class="chip ${i.open?"ok":""}">${i.open?"open":"closed"}</span>`})}
 let pins=store.get("pd_pins",["UTC","Asia/Shanghai","Europe/London","America/New_York"]);
 function renderClock(){
  $("#pins").innerHTML=pins.map(z=>clock(z,`<button class="btn g s" onclick="unpin('${z}')">Remove</button>`)).join("")||'<p class="mut">No clocks pinned. Search above and pin a zone.</p>';
@@ -129,14 +156,14 @@ function renderClock(){
 function pin(z){if(!pins.includes(z))pins.push(z);store.set("pd_pins",pins);renderClock()}
 function unpin(z){pins=pins.filter(x=>x!==z);store.set("pd_pins",pins);renderClock()}
 
-const STATUS=["Draft","Sent to supplier","Confirmed","In production","Shipped","In customs","Delivered","Closed","Cancelled"],DONE=["Delivered","Closed","Cancelled"],CUR=["USD","EUR","GBP","GHS","CNY","INR","JPY","AED","ZAR","NGN"];
+const STATUS=["Draft","Sent to supplier","Confirmed","In production","Shipped","In customs","Delivered","Closed","Cancelled"],DONE=["Delivered","Closed","Cancelled"],CUR=["USD","EUR","GBP","GHS","CNY","INR","JPY","AED","ZAR","NGN","KES","CAD","AUD","CHF","SGD","XOF","SAR","TRY"];
 const today=()=>new Date().toISOString().slice(0,10),addD=n=>new Date(Date.now()+n*864e5).toISOString().slice(0,10);
 const dd=s=>Math.round((new Date(s)-new Date(today()))/864e5);
-let S=store.get("pd_pos",null),seq=store.get("pd_seq",0),editId=null,openId=null;
+let S=store.get("pd_pos",null),seq=store.get("pd_seq",0),editId=null,openId=null,armed=null;
 const mk=(sup,cc,item,qty,pr,cur,od,eta,st,car,trk)=>({id:"p"+(++seq),no:"PO-"+new Date().getFullYear()+"-"+String(seq).padStart(4,"0"),sup,cc,item,qty,pr,cur,od,eta,st,car,trk,nt:"",log:[{d:od,t:"PO created ("+st+")"}]});
 if(!S){S=[mk("Shenzhen Brightline Co.","CN","LED panels 60x60",400,18.5,"USD",addD(-30),addD(-3),"Shipped","Maersk","MSKU7782341"),mk("Rhein Pumpen GmbH","DE","Centrifugal pumps",12,940,"EUR",addD(-12),addD(9),"In production","DHL Freight",""),mk("Lagos Packaging Ltd","NG","Corrugated cartons",5000,0.42,"USD",addD(-2),addD(20),"Sent to supplier","","")];save()}
 function save(){store.set("pd_pos",S);store.set("pd_seq",seq)}
-const late=p=>!DONE.includes(p.st)&&p.eta&&dd(p.eta)<0,isOpen=p=>!DONE.includes(p.st),val=p=>p.qty*p.pr,money=(v,c)=>c+" "+v.toLocaleString(undefined,{maximumFractionDigits:2});
+const late=p=>!DONE.includes(p.st)&&p.eta&&dd(p.eta)<0,isOpen=p=>!DONE.includes(p.st),val=p=>(p.qty*p.pr)*(1+(p.tx||0)/100)+(+p.fr||0),money=(v,c)=>c+" "+v.toLocaleString(undefined,{maximumFractionDigits:2});
 const tzOf=cc=>((COUNTRIES.find(x=>x.c===cc)||{z:[]}).z[0]);
 function renderDash(){const o=S.filter(isOpen),l=S.filter(late),soon=o.filter(p=>!late(p)&&dd(p.eta)<=7);
  $("#kpis").innerHTML=`<div class="kpi"><b>${o.length}</b><span>Open orders</span></div><div class="kpi ${l.length?"bad":""}"><b>${l.length}</b><span>Overdue</span></div><div class="kpi ${soon.length?"warn":""}"><b>${soon.length}</b><span>Due within 7 days</span></div><div class="kpi"><b>${S.filter(p=>p.st=="Shipped"||p.st=="In customs").length}</b><span>In transit</span></div>`;
@@ -149,28 +176,82 @@ function renderDash(){const o=S.filter(isOpen),l=S.filter(late),soon=o.filter(p=
 function renderPO(){const q=$("#q").value.toLowerCase(),fs=$("#fs").value,fv=$("#fv").value;
  const L=S.filter(p=>(!q||[p.no,p.sup,p.item,p.trk,p.car].join(" ").toLowerCase().includes(q))&&(!fs||p.st==fs)&&(fv!="open"||isOpen(p))&&(fv!="late"||late(p))).reverse();
  $("#poCount").textContent=L.length+" of "+S.length;
- $("#poBody").innerHTML=L.map(p=>{const z=tzOf(p.cc),x=late(p);let h=`<tr><td><button class="lnk" onclick="tg('${p.id}')">${p.no}</button></td><td>${flag(p.cc)} ${esc(p.sup)}<div class="mut">${esc(cn(p.cc))}</div></td><td>${esc(p.item)}<div class="mut">${p.qty} × ${p.pr}</div></td><td class="num">${money(val(p),p.cur)}</td><td>${p.eta||""}${x?` <span class="chip bad">${-dd(p.eta)}d late</span>`:""}</td><td><span class="chip ${p.st=="Delivered"||p.st=="Closed"?"ok":x?"bad":""}">${p.st}</span></td><td>${z?`<span data-st="${z}"></span>`:""}</td></tr>`;
-  if(openId==p.id)h+=`<tr class="det"><td colspan="7"><div class="two"><div><b>Tracking</b><div class="mut">${esc(p.car)||"No carrier"} · ${esc(p.trk)||"no tracking number"}</div><ul class="log">${p.log.map(e=>`<li><span class="mut">${e.d}</span> ${esc(e.t)}</li>`).join("")}</ul>${p.nt?`<div class="mut">Notes: ${esc(p.nt)}</div>`:""}</div><div><label>Update status<select onchange="setSt('${p.id}',this.value)">${STATUS.map(s=>`<option ${s==p.st?"selected":""}>${s}</option>`).join("")}</select></label><label style="margin-top:8px">Add tracking update<input id="ev_${p.id}" placeholder="e.g. Departed Shenzhen port" onkeydown="if(event.key=='Enter')addEv('${p.id}')"></label><div class="row"><button class="btn s" onclick="addEv('${p.id}')">Add update</button><button class="btn g s" onclick="edit('${p.id}')">Edit PO</button><button class="btn g s d" onclick="del('${p.id}')">Delete</button></div></div></div></td></tr>`;return h}).join("")||'<tr><td colspan="7" class="mut">No orders match. Open “New purchase order” to add one.</td></tr>';tick()}
+ $("#poBody").innerHTML=L.map(p=>{const z=tzOf(p.cc),x=late(p);let h=`<tr><td><button class="lnk" onclick="tg('${p.id}')">${p.no}</button></td><td>${flag(p.cc)} ${esc(p.sup)}<div class="mut">${esc(cn(p.cc))}</div></td><td>${esc(p.item)}<div class="mut">${p.qty} × ${p.pr}</div></td><td class="num">${money(val(p),p.cur)}</td><td>${p.eta||""}${x?` <span class="chip bad">${-dd(p.eta)}d late</span>`:""}</td><td><span class="chip ${p.st=="Delivered"||p.st=="Closed"?"ok":x?"bad":""}">${p.st}</span></td><td>${z?`<span data-st="${z}"></span>`:""}</td><td><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></td></tr>`;
+  if(openId==p.id)h+=`<tr class="det"><td colspan="8"><div class="two"><div><b>Tracking</b><div class="mut">${esc(p.car)||"No carrier"} · ${esc(p.trk)||"no tracking number"}</div><ul class="log">${p.log.map(e=>`<li><span class="mut">${e.d}</span> ${esc(e.t)}</li>`).join("")}</ul>${p.nt?`<div class="mut">Notes: ${esc(p.nt)}</div>`:""}</div><div><label>Update status<select onchange="setSt('${p.id}',this.value)">${STATUS.map(s=>`<option ${s==p.st?"selected":""}>${s}</option>`).join("")}</select></label><label style="margin-top:8px">Add tracking update<input id="ev_${p.id}" placeholder="e.g. Departed Shenzhen port" onkeydown="if(event.key=='Enter')addEv('${p.id}')"></label><div class="row"><button class="btn s" onclick="addEv('${p.id}')">Add update</button><button class="btn g s" onclick="docFromPO('${p.id}')">Make proforma</button><button class="btn g s" onclick="edit('${p.id}')">Edit PO</button><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></div></div></div></td></tr>`;return h}).join("")||'<tr><td colspan="8" class="mut">No orders match. Open “New purchase order” to add one.</td></tr>';tick()}
 const tg=id=>{openId=openId==id?null:id;renderPO()};
 function gotoPO(id){openId=id;show("po")}
 function setSt(id,s){const p=S.find(x=>x.id==id);if(p.st!=s){p.st=s;p.log.push({d:today(),t:"Status changed to "+s});save();renderPO();renderDash()}}
 function addEv(id){const i=$("#ev_"+id),p=S.find(x=>x.id==id);if(!i.value.trim())return;p.log.push({d:today(),t:i.value.trim()});save();renderPO()}
-function del(id){if(confirm("Delete this purchase order?")){S=S.filter(p=>p.id!=id);openId=null;save();renderPO();renderDash()}}
-function edit(id){const p=S.find(x=>x.id==id);editId=id;const m={sup:"sup",cc:"cc",item:"item",qty:"qty",pr:"pr",cur:"cur",od:"od",eta:"eta",st:"st",car:"car",trk:"trk",nt:"nt"};for(const k in m)$("#f_"+k).value=p[k]??"";$("#formT").textContent="Edit "+p.no;$("#formPane").open=true;$("#formPane").scrollIntoView()}
+function del(id){if(!arm("p"+id)){renderPO();return}S=S.filter(p=>p.id!=id);openId=null;save();renderPO();renderDash()}
+function edit(id){const p=S.find(x=>x.id==id);editId=id;const m={sup:"sup",cc:"cc",item:"item",qty:"qty",pr:"pr",cur:"cur",od:"od",eta:"eta",st:"st",car:"car",trk:"trk",nt:"nt",sad:1,sh:1,inc:1,pay:1,fr:1,tx:1};for(const k in m)$("#f_"+k).value=p[k]??"";$("#formT").textContent="Edit "+p.no;$("#formPane").open=true;$("#formPane").scrollIntoView()}
 function resetForm(){editId=null;$("#poForm").reset();$("#f_od").value=today();$("#f_eta").value=addD(30);$("#formT").textContent="New purchase order"}
-$("#poForm").onsubmit=e=>{e.preventDefault();const v=k=>$("#f_"+k).value;const d={sup:v("sup").trim(),cc:v("cc"),item:v("item").trim(),qty:+v("qty"),pr:+v("pr"),cur:v("cur"),od:v("od"),eta:v("eta"),st:v("st"),car:v("car").trim(),trk:v("trk").trim(),nt:v("nt").trim()};
- if(editId){const p=S.find(x=>x.id==editId);if(p.st!=d.st)p.log.push({d:today(),t:"Status changed to "+d.st});Object.assign(p,d);p.log.push({d:today(),t:"PO edited"})}else{const p=mk(d.sup,d.cc,d.item,d.qty,d.pr,d.cur,d.od,d.eta,d.st,d.car,d.trk);p.nt=d.nt;S.push(p);openId=p.id}
+$("#poForm").onsubmit=e=>{e.preventDefault();const v=k=>$("#f_"+k).value;const d={sup:v("sup").trim(),cc:v("cc"),item:v("item").trim(),qty:+v("qty"),pr:+v("pr"),cur:v("cur").trim().toUpperCase(),od:v("od"),eta:v("eta"),st:v("st"),car:v("car").trim(),trk:v("trk").trim(),nt:v("nt").trim(),sad:v("sad").trim(),sh:v("sh").trim(),inc:v("inc").trim(),pay:v("pay").trim(),fr:+v("fr")||0,tx:+v("tx")||0};
+ if(editId){const p=S.find(x=>x.id==editId);if(p.st!=d.st)p.log.push({d:today(),t:"Status changed to "+d.st});Object.assign(p,d);p.log.push({d:today(),t:"PO edited"})}else{const p=mk(d.sup,d.cc,d.item,d.qty,d.pr,d.cur,d.od,d.eta,d.st,d.car,d.trk);Object.assign(p,{nt:d.nt,sad:d.sad,sh:d.sh,inc:d.inc,pay:d.pay,fr:d.fr,tx:d.tx});S.push(p);openId=p.id}
  save();resetForm();$("#formPane").open=false;renderPO();renderDash()};
 $("#cancelBtn").onclick=resetForm;
 $("#f_cc").innerHTML=COUNTRIES.map(c=>`<option value="${c.c}">${esc(c.n)} (${c.c})</option>`).join("");$("#f_cc").value="CN";
-$("#f_cur").innerHTML=CUR.map(c=>`<option>${c}</option>`).join("");
+$("#curs").innerHTML=CUR.map(c=>`<option>${c}</option>`).join("");
 $("#f_st").innerHTML=STATUS.map(s=>`<option>${s}</option>`).join("");
 $("#fs").innerHTML='<option value="">All statuses</option>'+STATUS.map(s=>`<option>${s}</option>`).join("");
 ["q","fs","fv"].forEach(i=>$("#"+i).oninput=renderPO);$("#cq").oninput=renderClock;
 
 /* Module registry: add a new feature by appending one entry here plus a <section class="tab" id="t-ID"> */
-const MODULES=[{id:"dash",label:"Dashboard",render:renderDash},{id:"po",label:"Purchase orders",render:renderPO},{id:"clock",label:"World clock",render:renderClock}];
+const MODULES=[{id:"dash",label:"Dashboard",render:renderDash},{id:"po",label:"Purchase orders",render:renderPO},{id:"src",label:"Sourcing",render:()=>{srcLinks();rfqList()}},{id:"doc",label:"Quotations",render:renderDocs},{id:"clock",label:"World clock",render:renderClock}];
 $("#nav").innerHTML=MODULES.map(m=>`<button data-m="${m.id}" onclick="show('${m.id}')">${m.label}</button>`).join("");
 function show(id){MODULES.forEach(m=>{$("#t-"+m.id).classList.toggle("on",m.id==id);document.querySelector(`[data-m="${m.id}"]`).classList.toggle("on",m.id==id)});MODULES.find(m=>m.id==id).render();renderClock&&id!="clock"&&id=="dash"&&renderClock();tick();try{history.replaceState(null,"","#"+id)}catch(e){}window.scrollTo(0,0)}
+const arm=k=>{if(armed===k){armed=null;return true}armed=k;setTimeout(()=>{if(armed===k){armed=null;renderPO();renderDocs();rfqList()}},4000);return false};
+const VERSION="0.2.0",CHG=[["0.2.0","Themes, 12-hour clocks, sourcing and RFQ drafts, proforma invoices and invoices, any currency, per-row delete"],["0.1.0","Purchase orders, dashboard, world clock"]];
+$("#ver").textContent="v"+VERSION;$("#chg").innerHTML=CHG.map(c=>`<div class="bar"><b>v${c[0]}</b><span style="width:auto">${c[1]}</span></div>`).join("");
+const th=$("#theme"),applyTh=()=>{const v=th.value;if(v)document.documentElement.dataset.theme=v;else delete document.documentElement.dataset.theme;store.set("pd_theme",v)};th.value=store.get("pd_theme","");th.onchange=applyTh;applyTh();
+$("#hfmt").value=H12?"12":"24";$("#hfmt").onchange=()=>{H12=$("#hfmt").value=="12";store.set("pd_12",H12);renderClock();renderPO();renderDash()};
+/* Sourcing + RFQ */
+const sv=k=>$("#s_"+k).value.trim();
+function srcParse(){const t=$("#s_raw").value,g=r=>{const m=t.match(r);return m?m[0]:""},set=(k,v)=>{if(v)$("#s_"+k).value=v};
+ const qm=t.match(/(\d[\d,]*)\s*(pcs|pieces|units|sets|kg|tons?|tonnes|mt|meters|boxes|cartons|pallets|rolls|litres|liters)\b/i);
+ set("qty",qm?qm[0]:"");set("mat",g(/\b(stainless steel\s?\d*|carbon steel|aluminium|aluminum|copper|brass|pvc|hdpe|cotton|polyester|leather|wood|plastic|rubber|glass|ceramic|steel|iron|nylon)\b/i));
+ set("dim",g(/\d+(?:\.\d+)?\s*(?:x|×)\s*\d+(?:\.\d+)?(?:\s*(?:x|×)\s*\d+(?:\.\d+)?)?\s*(?:mm|cm|m|in)?|\d+(?:\.\d+)?\s*(?:mm|cm|inch|inches)\b/i));
+ set("cert",(t.match(/\b(ISO\s?\d+|CE|RoHS|ASTM\s?\w+|API\s?\d+\w*|SGS|FDA|UL|ANSI\s?\w+|DIN\s?\d+|EN\s?\d+|PN\s?\d+)\b/g)||[]).join(", "));
+ set("inc",g(/\b(EXW|FCA|FAS|FOB|CFR|CIF|CPT|CIP|DAP|DPU|DDP)\b/));
+ const d=t.match(/\b(?:to|deliver(?:ed)? to|ship(?:ped)? to)\s+([A-Z][\w ]*?)(?=[,.;]|\s+(?:CIF|FOB|CFR|DAP|DDP|EXW|by)\b|$)/);set("dest",d?d[1]:"");
+ set("bud",(t.match(/(?:budget|target price|under)\s*(?:of)?\s*([$€£]?\s?\d[\d,.]*\s?(?:usd|eur|gbp|ghs)?)/i)||[])[1]);
+ set("prod",t.split(/[,;]/)[0].replace(qm?qm[0]:"","").replace(/^\s*(?:of|x)\s+/i,"").trim());
+ $("#s_kw").value=[sv("prod"),sv("mat"),sv("dim"),sv("cert")].filter(Boolean).join(" ");srcLinks()}
+function srcLinks(){const kw=$("#s_kw").value.trim(),loc=$("#s_loc").value.trim(),e=encodeURIComponent,G=q=>"https://www.google.com/search?q="+e(q);
+ const L=[["Local","Local suppliers",G(kw+" supplier "+loc)],["Local","Distributors / wholesale",G(kw+" distributor wholesale "+loc)],["Local","Maps","https://www.google.com/maps/search/"+e(kw+" "+loc)],["Foreign","Manufacturers / exporters",G(kw+" manufacturer exporter")],["Foreign","Alibaba","https://www.alibaba.com/trade/search?SearchText="+e(kw)],["Foreign","Made-in-China",G(kw+" site:made-in-china.com")],["Foreign","Global Sources",G(kw+" site:globalsources.com")],["Foreign","IndiaMART",G(kw+" site:indiamart.com")],["Foreign","ThomasNet",G(kw+" supplier site:thomasnet.com")]];
+ $("#s_links").innerHTML=kw?["Local","Foreign"].map(g=>`<div style="width:100%"><b>${g} sources</b><div class="row" style="margin-top:6px">${L.filter(x=>x[0]==g).map(x=>`<a class="btn g s" target="_blank" rel="noopener" style="text-decoration:none" href="${x[2]}">${x[1]}</a>`).join("")}</div></div>`).join(""):'<p class="mut">Fill in the product fields to build search links.</p>'}
+function rfqGen(){const f=(l,v)=>v?l+": "+v+"\n":"",v=k=>$("#r_"+k).value.trim();
+ const b=`Dear ${v("sup")||"Sir/Madam"},\n\nWe are sourcing the item below and would like to request your best quotation.\n\n`+f("Product",sv("prod"))+f("Material / grade",sv("mat"))+f("Size / dimensions",sv("dim"))+f("Quantity",sv("qty"))+f("Standards / certifications",sv("cert"))+f("Delivery terms",[sv("inc"),sv("dest")].filter(Boolean).join(" "))+f("Required by",sv("by"))+f("Other requirements",sv("oth"))+`\nPlease include in your quotation: unit price and currency, total price, minimum order quantity, lead time, payment terms, offer validity, packaging, and any relevant certificates or samples.${v("due")?"\nKindly reply by "+v("due")+".":""}\n\nKind regards,\n${v("me")}\n${v("co")}`;
+ $("#r_sub").value="Request for Quotation – "+(sv("prod")||"your products");$("#r_body").value=b;rfqMail()}
+function rfqMail(){$("#r_mail").href="mailto:"+encodeURIComponent($("#r_em").value.trim())+"?subject="+encodeURIComponent($("#r_sub").value)+"&body="+encodeURIComponent($("#r_body").value)}
+function rfqCopy(){const b=$("#r_body");try{navigator.clipboard.writeText(b.value).catch(()=>{b.select();document.execCommand("copy")})}catch(e){b.select();try{document.execCommand("copy")}catch(x){}}}
+let RF=store.get("pd_rfq",[]);
+function rfqSave(){if(!$("#r_body").value.trim())return;RF.push({id:"r"+Date.now(),sub:$("#r_sub").value,body:$("#r_body").value,sup:$("#r_sup").value,em:$("#r_em").value});store.set("pd_rfq",RF);rfqList()}
+function rfqLoad(id){const r=RF.find(x=>x.id==id);$("#r_sub").value=r.sub;$("#r_body").value=r.body;$("#r_sup").value=r.sup;$("#r_em").value=r.em;rfqMail();window.scrollTo(0,0)}
+function rfqDel(id){if(!arm("r"+id)){rfqList();return}RF=RF.filter(x=>x.id!=id);store.set("pd_rfq",RF);rfqList()}
+function rfqList(){$("#rfqN").textContent=RF.length+" saved";$("#rfqList").innerHTML=RF.map(r=>`<div class="bar"><b>${esc(r.sub)}</b><span class="mut" style="width:auto">${esc(r.sup)}</span><button class="btn g s" onclick="rfqLoad('${r.id}')">Open</button><button class="btn g s d" onclick="rfqDel('${r.id}')">${armed=='r'+r.id?'Confirm delete':'Delete'}</button></div>`).join("")||'<p class="mut">No saved drafts yet.</p>'}
+/* Proforma invoices and invoices */
+let DOCS=store.get("pd_docs",[]),dseq=store.get("pd_dseq",0),dId=null,LN=[];
+const DF=["type","no","date","due","cur","ref","sn","sa","bn","ba","inc","pay","dis","tax","fr","nt"],m2=(v,c)=>(c?c+" ":"")+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const dNo=()=>($("#d_type").value=="Invoice"?"INV-":"PI-")+new Date().getFullYear()+"-"+String(dseq+1).padStart(4,"0");
+function docRead(){const o={L:LN.map(x=>({...x}))};DF.forEach(k=>o[k]=$("#d_"+k).value);return o}
+function docFill(o){DF.forEach(k=>$("#d_"+k).value=o[k]??"");LN=o.L.map(x=>({...x}));lines();docPreview()}
+function lines(){const g='style="grid-template-columns:3fr 1fr 1fr auto;padding-top:6px"';$("#d_items").innerHTML=`<div class="fg" ${g}><span class="mut">Description</span><span class="mut">Qty</span><span class="mut">Unit price</span><span></span></div>`+LN.map((x,i)=>`<div class="fg" ${g}><input data-i="${i}" data-k="d" value="${esc(x.d)}" placeholder="Item description"><input data-i="${i}" data-k="q" type="number" step="any" value="${x.q}"><input data-i="${i}" data-k="p" type="number" step="any" value="${x.p}"><button class="btn g s d" onclick="rmLine(${i})">✕</button></div>`).join("")}
+function addLine(){LN.push({d:"",q:1,p:0});lines();docPreview()}
+function rmLine(i){LN.splice(i,1);if(!LN.length)LN.push({d:"",q:1,p:0});lines();docPreview()}
+function docTot(o){const sub=o.L.reduce((s,x)=>s+(+x.q||0)*(+x.p||0),0),dc=sub*(+o.dis||0)/100,tx=(sub-dc)*(+o.tax||0)/100,fr=+o.fr||0;return{sub,dc,tx,fr,tot:sub-dc+tx+fr}}
+function docPreview(){const o=docRead(),t=docTot(o);$("#docView").innerHTML=`<div class="paper" style="max-width:760px;margin:8px auto;background:#fff;color:#111;padding:28px;border:1px solid #ddd"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">${esc(o.type)}</h2><div>No. ${esc(o.no)}</div><div>Date: ${esc(o.date)}</div>${o.due?`<div>${o.type=="Invoice"?"Due":"Valid until"}: ${esc(o.due)}</div>`:""}${o.ref?`<div>Ref: ${esc(o.ref)}</div>`:""}</div><div style="text-align:right"><b>${esc(o.sn)}</b><div>${esc(o.sa)}</div></div></div><p><b>Bill to</b><br>${esc(o.bn)}<br>${esc(o.ba)}</p><table style="min-width:0"><thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead><tbody>${o.L.map(x=>`<tr><td>${esc(x.d)}</td><td class="num">${esc(x.q)}</td><td class="num">${m2(+x.p||0)}</td><td class="num">${m2((+x.q||0)*(+x.p||0))}</td></tr>`).join("")}</tbody></table><div style="text-align:right;margin-top:10px">Subtotal ${m2(t.sub)}<br>${+o.dis>0?`Discount (${esc(o.dis)}%) −${m2(t.dc)}<br>`:""}${+o.tax>0?`Tax (${esc(o.tax)}%) ${m2(t.tx)}<br>`:""}${t.fr?`Freight / other ${m2(t.fr)}<br>`:""}<b style="font-size:17px">Total ${m2(t.tot,esc(o.cur))}</b></div>${o.inc||o.pay?`<p>${o.inc?"Incoterm: "+esc(o.inc)+"<br>":""}${o.pay?"Payment terms: "+esc(o.pay):""}</p>`:""}<p style="white-space:pre-wrap">${esc(o.nt)}</p></div>`}
+function docReset(){dId=null;$("#d_type").value="Proforma Invoice";docFill({type:"Proforma Invoice",no:dNo(),date:today(),due:addD(30),cur:"USD",dis:0,tax:0,fr:0,L:[{d:"",q:1,p:0}]});$("#docT").textContent="New document"}
+function docSave(){const o=docRead();if(dId)Object.assign(DOCS.find(x=>x.id==dId),o);else{o.id="d"+(++dseq);DOCS.push(o);dId=o.id}store.set("pd_docs",DOCS);store.set("pd_dseq",dseq);$("#docT").textContent="Edit "+o.no;renderDocs()}
+function docLoad(id){dId=id;const o=DOCS.find(x=>x.id==id);docFill(o);$("#docT").textContent="Edit "+o.no;window.scrollTo(0,0)}
+function docDel(id){if(!arm("d"+id)){renderDocs();return}DOCS=DOCS.filter(x=>x.id!=id);if(dId==id)docReset();store.set("pd_docs",DOCS);renderDocs()}
+function renderDocs(){$("#docN").textContent=DOCS.length+" saved";$("#docList").innerHTML=DOCS.map(d=>`<div class="bar"><b>${esc(d.no)}</b><span class="mut" style="width:auto">${esc(d.type)} · ${esc(d.bn)} · ${m2(docTot(d).tot,esc(d.cur))}</span><button class="btn g s" onclick="docLoad('${d.id}')">Open</button><button class="btn g s d" onclick="docDel('${d.id}')">${armed=='d'+d.id?'Confirm delete':'Delete'}</button></div>`).join("")||'<p class="mut">No saved documents yet.</p>'}
+function docFromPO(id){const p=S.find(x=>x.id==id);docReset();docFill({...docRead(),ref:p.no,cur:p.cur,inc:p.inc||"",pay:p.pay||"",tax:p.tx||0,fr:p.fr||0,L:[{d:p.item,q:p.qty,p:p.pr}]});show("doc")}
+document.addEventListener("input",e=>{const t=e.target,id=t.id||"";
+ if(t.dataset.k){LN[+t.dataset.i][t.dataset.k]=t.value;docPreview();return}
+ if(id=="d_type"&&/^(PI|INV)-/.test($("#d_no").value))$("#d_no").value=dNo();
+ if(id.startsWith("d_"))docPreview();
+ if(id.startsWith("s_")&&id!="s_raw"){if(id!="s_kw"&&id!="s_loc")$("#s_kw").value=[sv("prod"),sv("mat"),sv("dim"),sv("cert")].filter(Boolean).join(" ");srcLinks()}
+ if(id=="r_em"||id=="r_sub"||id=="r_body")rfqMail()});
+docReset();
 resetForm();show(MODULES.some(m=>"#"+m.id==location.hash)?location.hash.slice(1):"dash");setInterval(tick,1000);
 </script></body></html>
