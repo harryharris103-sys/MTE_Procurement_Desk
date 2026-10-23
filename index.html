@@ -71,6 +71,7 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
   <details class="pane" open><summary>Pinned clocks<span class="r"><button class="lnk" onclick="show('clock')">Manage</button></span></summary><div class="pb"><div class="grid" id="dashClk" style="margin-top:10px"></div></div></details>
   <details class="pane"><summary>Open value by currency</summary><div class="pb" id="val"></div></details>
   <details class="pane"><summary>Version history</summary><div class="pb" id="chg"></div></details>
+  <details class="pane"><summary>Backup and restore</summary><div class="pb"><p class="mut" style="margin-top:10px">Saves every PO, document, RFQ draft, rate and setting to one file. Use it to move your data between devices or web addresses.</p><div class="row"><button class="btn" onclick="bkSave()">Download backup</button><label class="btn g" style="cursor:pointer;flex-direction:row;color:var(--tx)">Restore from file<input type="file" id="bkFile" accept=".json,application/json" hidden></label></div><div id="bkMsg" class="mut" style="margin-top:8px"></div></div></details>
  </div></div>
 </section>
 
@@ -235,7 +236,7 @@ const MODULES=[{id:"dash",label:"Dashboard",render:renderDash},{id:"po",label:"P
 $("#nav").innerHTML=MODULES.map(m=>`<button data-m="${m.id}" onclick="show('${m.id}')">${m.label}</button>`).join("");
 function show(id){MODULES.forEach(m=>{$("#t-"+m.id).classList.toggle("on",m.id==id);document.querySelector(`[data-m="${m.id}"]`).classList.toggle("on",m.id==id)});MODULES.find(m=>m.id==id).render();renderClock&&id!="clock"&&id=="dash"&&renderClock();tick();try{history.replaceState(null,"","#"+id)}catch(e){}window.scrollTo(0,0)}
 const arm=k=>{if(armed===k){armed=null;return true}armed=k;setTimeout(()=>{if(armed===k){armed=null;renderPO();renderDocs();rfqList();renderFx()}},4000);return false};
-const VERSION="0.3.0",CHG=[["0.3.0","Purchase order documents, multi-item POs, tracking report with XLSX and PDF export, exchange rates with local bank rates, enhanced sourcing"],["0.2.0","Themes, 12-hour clocks, sourcing and RFQ drafts, proforma invoices and invoices, any currency, per-row delete"],["0.1.0","Purchase orders, dashboard, world clock"]];
+const VERSION="0.3.1",CHG=[["0.3.1","Backup and restore of all data"],["0.3.0","Purchase order documents, multi-item POs, tracking report with XLSX and PDF export, exchange rates with local bank rates, enhanced sourcing"],["0.2.0","Themes, 12-hour clocks, sourcing and RFQ drafts, proforma invoices and invoices, any currency, per-row delete"],["0.1.0","Purchase orders, dashboard, world clock"]];
 $("#ver").textContent="v"+VERSION;$("#chg").innerHTML=CHG.map(c=>`<div class="bar"><b>v${c[0]}</b><span style="width:auto">${c[1]}</span></div>`).join("");
 const th=$("#theme"),applyTh=()=>{const v=th.value;if(v)document.documentElement.dataset.theme=v;else delete document.documentElement.dataset.theme;store.set("pd_theme",v)};th.value=store.get("pd_theme","");th.onchange=applyTh;applyTh();
 $("#hfmt").value=H12?"12":"24";$("#hfmt").onchange=()=>{H12=$("#hfmt").value=="12";store.set("pd_12",H12);renderClock();renderPO();renderDash()};
@@ -531,6 +532,14 @@ async function expPdf(){const m=$("#expMsg"),J=window.jspdf;if(!J||!J.jsPDF){m.t
  const R=repRows(),doc=new J.jsPDF({orientation:"landscape"});doc.setFontSize(15);doc.text("MTE Procurement Desk - Tracking report",14,14);doc.setFontSize(9);doc.text("Generated "+today()+" | "+R.length+" entries",14,20);
  doc.autoTable({startY:25,head:[["Type","Number","Party","Date","Reference","Status","Currency","Total"]],body:R.map(r=>[r.type,r.no,r.party,r.date,r.ref,r.st,r.cur,m2(r.tot)]),styles:{fontSize:8},headStyles:{fillColor:[15,118,110]},columnStyles:{7:{halign:"right"}}});
  m.textContent=await saveFile("MTE-tracking-report-"+today()+".pdf",doc.output("arraybuffer"),"application/pdf")}
+/* Backup and restore */
+let bkPend=null;
+function bkData(){return{app:"mte-procurement-desk",version:VERSION,date:new Date().toISOString(),data:{pd_pos:S,pd_seq:seq,pd_pins:pins,pd_12:H12,pd_rfq:RF,pd_docs:DOCS,pd_dseq:dseq,pd_fx:FX,pd_theme:th.value}}}
+async function bkSave(){$("#bkMsg").textContent=await saveFile("mte-procurement-backup-"+today()+".json",JSON.stringify(bkData(),null,1),"application/json")}
+$("#bkFile").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;const m=$("#bkMsg");try{const j=JSON.parse(await f.text());if(j.app!="mte-procurement-desk"||!j.data||!Array.isArray(j.data.pd_pos))throw 0;bkPend=j.data;m.innerHTML=`Backup from ${esc((j.date||"").slice(0,10))}: ${j.data.pd_pos.length} POs, ${(j.data.pd_docs||[]).length} documents, ${(j.data.pd_rfq||[]).length} RFQ drafts, ${(j.data.pd_fx||[]).length} rates. Restoring replaces everything now in this browser. <button class="btn s" onclick="bkApply()">Replace my data</button> <button class="btn g s" onclick="bkPend=null;$('#bkMsg').textContent=''">Cancel</button>`}catch(x){bkPend=null;m.textContent="That file is not a valid MTE Procurement Desk backup."}};
+function bkApply(){const d=bkPend;if(!d)return;S=d.pd_pos;S.forEach(p=>{if(!p.items)p.items=[{d:p.item,q:p.qty,p:p.pr}]});seq=d.pd_seq||S.length;pins=d.pd_pins||pins;H12=!!d.pd_12;RF=d.pd_rfq||[];DOCS=d.pd_docs||[];dseq=d.pd_dseq||DOCS.length;FX=d.pd_fx||[];
+ save();store.set("pd_pins",pins);store.set("pd_12",H12);store.set("pd_rfq",RF);store.set("pd_docs",DOCS);store.set("pd_dseq",dseq);store.set("pd_fx",FX);
+ th.value=d.pd_theme||"";applyTh();$("#hfmt").value=H12?"12":"24";bkPend=null;openId=null;resetForm();docReset();show(document.querySelector("section.tab.on").id.slice(2));$("#bkMsg").textContent="Backup restored."}
 document.addEventListener("input",e=>{const t=e.target,id=t.id||"";
  if(t.dataset.k){const P=t.dataset.g=="p";(P?PL:LN)[+t.dataset.i][t.dataset.k]=t.value;if(!P)docPreview();return}
  if(id=="d_type"&&/^(PI|INV|POD)-/.test($("#d_no").value))$("#d_no").value=dNo();
