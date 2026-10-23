@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Procurement Desk</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="theme-color" content="#0f766e"><link rel="icon" href="icon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="icon-192.png">
+<title>MTE Procurement Desk</title>
 <style>
 :root{--bg:#eef1f4;--card:#fff;--tx:#17212b;--mut:#64707d;--bd:#dde2e8;--ac:#0f766e;--acs:#d9f0ec;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--hd:#10272b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12181d;--card:#1b242b;--tx:#e6ebf0;--mut:#93a0ad;--bd:#2c3943;--ac:#2dd4bf;--acs:#173a38;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--hd:#0b1418;color-scheme:dark}}
@@ -47,8 +48,19 @@ tr.det td{background:var(--bg)}.num{text-align:right;font-variant-numeric:tabula
 ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:760px){.two{grid-template-columns:1fr}nav{margin-left:0}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
-</style></head><body>
-<header><div><h1>Procurement Desk</h1><div class="sub">Orders, suppliers and time zones · <span id="ver"></span></div></div><select id="theme" aria-label="Theme" style="width:auto"><option value="">Theme: Auto</option><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option><option value="ocean">Ocean</option><option value="midnight">Midnight</option></select><nav id="nav"></nav></header>
+#ss .grid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}#ss label{flex-direction:row;justify-content:space-between;align-items:center}
+#ss button,.sb{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:6px;padding:6px 11px;cursor:pointer}#ss button.p{background:var(--ac);border-color:var(--ac);color:var(--bt,#04201d)}
+#ss textarea{min-height:140px;resize:vertical}#ss p.s,.s{color:var(--mut);margin:0 0 10px}
+#ss .b{font-size:11px;padding:0 6px;border-radius:99px;border:1px solid currentColor}.matched{color:var(--ok)}.guessed{color:var(--warn)}.manual{color:var(--ac)}
+#ss .un{display:flex;gap:8px;align-items:center;margin-bottom:6px;flex-wrap:wrap}#ss .un span{flex:1 1 200px;background:var(--bg);border:1px dashed var(--bd);border-radius:6px;padding:6px 8px}#ss .un select{width:190px}
+#ss .w{border-left:3px solid var(--warn);padding:4px 10px;margin:6px 0;background:var(--bg);border-radius:0 6px 6px 0}
+#ss .q{border-top:1px solid var(--bd);padding:8px 0}#ss .q:first-child{border-top:0}#ss .q code{display:block;word-break:break-word;margin:2px 0 6px}#ss .q a{margin-right:10px;color:var(--ac)}
+#ss .it{display:block;width:100%;text-align:left;margin-bottom:6px}#ss .it.on{border-color:var(--ac);box-shadow:0 0 0 1px var(--ac)}
+</style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script></head><body>
+<header><div><h1>MTE Procurement Desk</h1><div class="sub">Orders, suppliers and time zones · <span id="ver"></span></div></div><select id="theme" aria-label="Theme" style="width:auto"><option value="">Theme: Auto</option><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option><option value="ocean">Ocean</option><option value="midnight">Midnight</option></select><nav id="nav"></nav></header>
 <main>
 <section class="tab" id="t-dash">
  <div class="kpis" id="kpis"></div>
@@ -67,9 +79,6 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
  <form id="poForm"><div class="fg">
   <label>Supplier<input id="f_sup" required placeholder="Supplier name"></label>
   <label>Supplier country<select id="f_cc"></select></label>
-  <label>Item / description<input id="f_item" required></label>
-  <label>Quantity<input id="f_qty" type="number" min="0" step="any" value="1" required></label>
-  <label>Unit price<input id="f_pr" type="number" min="0" step="any" value="0" required></label>
   <label>Currency (type any code)<input id="f_cur" list="curs" value="USD" maxlength="10" required></label><datalist id="curs"></datalist>
   <label>Order date<input id="f_od" type="date" required></label>
   <label>Expected delivery<input id="f_eta" type="date" required></label>
@@ -77,7 +86,7 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
   <label>Carrier<input id="f_car" placeholder="e.g. DHL, Maersk"></label>
   <label>Tracking / B/L number<input id="f_trk"></label>
   <label>Notes<input id="f_nt"></label><label>Supplier address<input id="f_sad"></label><label>Ship-to address<input id="f_sh"></label><label>Incoterm<input id="f_inc" placeholder="FOB, CIF, DAP…"></label><label>Payment terms<input id="f_pay" placeholder="30% advance, 70% on B/L"></label><label>Freight / other charges<input id="f_fr" type="number" step="any" value="0"></label><label>Tax %<input id="f_tx" type="number" step="any" value="0"></label>
- </div><div class="row"><button class="btn" id="saveBtn" type="submit">Save PO</button><button class="btn g" type="button" id="cancelBtn">Clear form</button></div></form></div></details>
+ </div><div id="f_items" style="margin-top:10px"></div><div class="row"><button class="btn g s" type="button" onclick="pAdd()">Add item</button></div><div class="row"><button class="btn" id="saveBtn" type="submit">Save PO</button><button class="btn g" type="button" id="cancelBtn">Clear form</button></div></form></div></details>
 
  <details class="pane"><summary>Search and filter</summary><div class="pb"><div class="fg">
   <label>Search<input id="q" placeholder="PO number, supplier, item, tracking…"></label>
@@ -96,26 +105,51 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
  <details class="pane" open><summary>Pinned clocks<span class="r" id="pinN"></span></summary><div class="pb"><div class="grid" id="pins" style="margin-top:10px"></div>
   <p class="mut">Business hours are 08:00–18:00, Monday to Friday, in the local zone.</p></div></details>
 </section>
-<section class="tab" id="t-src">
- <details class="pane" open><summary>1. Describe what you need</summary><div class="pb">
-  <label style="margin-top:12px">Paste a specification (optional)<textarea id="s_raw" rows="3" placeholder="e.g. 500 pcs stainless steel 304 ball valves, 2 inch, PN16, ISO 9001, delivery to Tema, CIF"></textarea></label>
-  <div class="row"><button class="btn s" onclick="srcParse()">Break down into fields</button><span class="mut">Fields are best-guess; edit any of them.</span></div>
-  <div class="fg"><label>Product<input id="s_prod"></label><label>Material / grade<input id="s_mat"></label><label>Size / dimensions<input id="s_dim"></label><label>Quantity<input id="s_qty"></label><label>Standards / certifications<input id="s_cert"></label><label>Incoterm<input id="s_inc"></label><label>Destination<input id="s_dest"></label><label>Target price (kept out of the RFQ)<input id="s_bud"></label><label>Needed by<input id="s_by" type="date"></label><label>Other requirements<input id="s_oth"></label></div></div></details>
- <details class="pane" open><summary>2. Search for sources</summary><div class="pb"><div class="fg"><label>Local market (country or city)<input id="s_loc" placeholder="Ghana, Accra"></label><label>Search keywords<input id="s_kw"></label></div><div class="row" id="s_links"></div></div></details>
- <details class="pane" open><summary>3. RFQ email draft</summary><div class="pb">
-  <div class="fg"><label>Supplier / contact<input id="r_sup"></label><label>Supplier email<input id="r_em" type="email"></label><label>Your company<input id="r_co"></label><label>Your name<input id="r_me"></label><label>Reply by<input id="r_due" type="date"></label></div>
-  <label style="margin-top:10px">Subject<input id="r_sub"></label><label style="margin-top:10px">Message<textarea id="r_body" rows="14"></textarea></label>
-  <div class="row"><button class="btn" onclick="rfqGen()">Generate draft</button><button class="btn g" onclick="rfqSave()">Save draft</button><button class="btn g" onclick="rfqCopy()">Copy</button><a class="btn g" id="r_mail" style="text-decoration:none">Open in email app</a></div></div></details>
- <details class="pane"><summary>Saved RFQ drafts<span class="r" id="rfqN"></span></summary><div class="pb" id="rfqList"></div></details>
+<section class="tab" id="t-src"><div id="ss">
+<details class="pane" open><summary>1. Paste the spec(s)</summary><div class="pb"><p class="s" style="margin-top:10px">Paste one or many specs exactly as received. They are split into items, sorted into fields and checked for gaps. Everything runs in your browser.</p>
+<textarea id="raw" placeholder="Paste the item description, quantity and unit, and any notes. Several items can be pasted together."></textarea>
+<div class="grid" style="margin-top:8px"><div><label>Local market / deliver to</label><input id="locq" value="Accra, Ghana"></div><div><label>Your name / company (for the RFQ)</label><input id="myco"></div></div>
+<div class="row"><button class="p" id="go">Break it down</button><button id="s1">Example: coupling</button><button id="s2">Example: medical + furniture</button><button id="s3">Example: valve</button><button id="s4">Example: safety + telecom</button><button id="clr">Clear</button></div></div></details>
+<datalist id="uoms"><option value="EA"><option value="PCS"><option value="M"><option value="MM"><option value="CM"><option value="LTR"><option value="KG"><option value="PAC"><option value="SET"><option value="ROLL"><option value="BOX"><option value="PAIR"><option value="LOT"></datalist>
+<div id="out" hidden>
+<details class="pane" id="itc" open hidden><summary>Items found</summary><div class="pb"><div id="items" style="margin-top:10px"></div><div class="row"><button id="tsv">Copy summary table</button><button id="allr">RFQ for all items</button><button id="allpo">Add all items to a PO</button><span id="tss" class="s"></span></div></div></details>
+<details class="pane" open><summary>2. Check the breakdown</summary><div class="pb"><p class="s" style="margin-top:10px">Green = read from a labelled line, amber = guessed, blue = edited by you. Edit any field and the searches update.</p><div class="grid" id="fields"></div></div></details>
+<details class="pane" id="unc" open hidden><summary>Could not place these</summary><div class="pb"><p class="s" style="margin-top:10px">Pick the field each belongs to, or ignore it.</p><div id="unl"></div></div></details>
+<details class="pane" open><summary>3. Things to confirm with the requester</summary><div class="pb" id="warn" style="padding-top:10px"></div></details>
+<details class="pane" open><summary>4. Searches</summary><div class="pb"><label style="justify-content:flex-start;gap:6px;margin-top:10px"><input type="checkbox" id="loc" checked style="width:auto"> Include a local search</label><div id="qs"></div></div></details>
+<details class="pane" open><summary>5. RFQ draft</summary><div class="pb"><textarea id="rfq" style="min-height:260px;margin-top:10px"></textarea><div class="row"><button class="p" id="cp">Copy RFQ</button><a class="sb" id="mail" style="text-decoration:none">Open in email app</a><button id="rfqsv">Save draft</button><button id="onepo">Add this item to a PO</button><span id="cps" class="s"></span></div></div></details>
+</div></div>
+<details class="pane"><summary>Saved RFQ drafts<span class="r" id="rfqN"></span></summary><div class="pb" id="rfqList"></div></details>
 </section>
 <section class="tab" id="t-doc">
  <details class="pane noprint" open><summary id="docT">New document</summary><div class="pb"><div class="fg">
-  <label>Type<select id="d_type"><option>Proforma Invoice</option><option>Invoice</option></select></label><label>Document no.<input id="d_no"></label><label>Date<input id="d_date" type="date"></label><label>Valid until / due date<input id="d_due" type="date"></label><label>Currency (type any code)<input id="d_cur" list="curs" maxlength="10"></label><label>PO / reference<input id="d_ref"></label><label>Seller name<input id="d_sn"></label><label>Seller address<input id="d_sa"></label><label>Buyer name<input id="d_bn"></label><label>Buyer address<input id="d_ba"></label><label>Incoterm<input id="d_inc"></label><label>Payment terms<input id="d_pay"></label><label>Discount %<input id="d_dis" type="number" step="any"></label><label>Tax %<input id="d_tax" type="number" step="any"></label><label>Freight / other charges<input id="d_fr" type="number" step="any"></label></div>
+  <label>Type<select id="d_type"><option>Proforma Invoice</option><option>Invoice</option><option>Purchase Order</option></select></label><label>Status<select id="d_st"><option>Draft</option><option>Issued</option><option>Paid / accepted</option><option>Cancelled</option></select></label><label>Document no.<input id="d_no"></label><label>Date<input id="d_date" type="date"></label><label>Valid until / due date<input id="d_due" type="date"></label><label>Currency (type any code)<input id="d_cur" list="curs" maxlength="10"></label><label>PO / reference<input id="d_ref"></label><label>From (issuer) name<input id="d_sn"></label><label>From (issuer) address<input id="d_sa"></label><label>To (customer or supplier) name<input id="d_bn"></label><label>To address<input id="d_ba"></label><label>Incoterm<input id="d_inc"></label><label>Payment terms<input id="d_pay"></label><label>Discount %<input id="d_dis" type="number" step="any"></label><label>Tax %<input id="d_tax" type="number" step="any"></label><label>Freight / other charges<input id="d_fr" type="number" step="any"></label></div>
   <div id="d_items" style="margin-top:10px"></div><div class="row"><button class="btn g s" onclick="addLine()">Add line</button></div>
   <label style="margin-top:10px">Notes / bank details<textarea id="d_nt" rows="3"></textarea></label>
   <div class="row"><button class="btn" onclick="docSave()">Save document</button><button class="btn g" onclick="docReset()">New blank document</button></div></div></details>
  <details class="pane noprint"><summary>Saved documents<span class="r" id="docN"></span></summary><div class="pb" id="docList"></div></details>
  <details class="pane" open><summary>Preview<span class="r noprint"><button class="btn g s" onclick="window.print()">Print / Save as PDF</button></span></summary><div class="pb" id="docView"></div></details>
+</section>
+<section class="tab" id="t-rep">
+ <div class="kpis" id="repK"></div>
+ <details class="pane noprint" open><summary>Filters and export</summary><div class="pb"><div class="fg">
+  <label>Search<input id="rq" placeholder="Number, party, reference…"></label>
+  <label>Type<select id="rt"><option value="">All types</option><option>PO register</option><option>Purchase Order</option><option>Proforma Invoice</option><option>Invoice</option></select></label>
+  <label>Status<select id="rs"></select></label>
+  <label>Also show totals in<input id="rp" list="curs" placeholder="e.g. USD (uses saved rates)"></label></div>
+  <div class="row"><button class="btn" onclick="expXlsx()">Export XLSX (editable)</button><button class="btn g" onclick="expPdf()">Export PDF</button><span class="mut" id="expMsg"></span></div></div></details>
+ <details class="pane" open><summary>Tracking report<span class="r" id="repN"></span></summary><div class="pb"><div class="tw"><table><thead><tr><th>Type</th><th>Number</th><th>Party</th><th>Date</th><th>Reference</th><th>Status</th><th class="num">Total</th><th class="num" id="convH"></th></tr></thead><tbody id="repB"></tbody></table></div></div></details>
+ <details class="pane"><summary>Totals by type and currency</summary><div class="pb" id="repT"></div></details>
+</section>
+<section class="tab" id="t-fx">
+ <details class="pane" open><summary>Currency converter</summary><div class="pb"><div class="fg">
+  <label>Amount<input id="x_amt" type="number" step="any" value="1000"></label><label>From (currency code)<input id="x_from" list="curs" value="USD"></label><label>To (currency code)<input id="x_to" list="curs"></label><label>Bank margin over mid % (estimate)<input id="x_mg" type="number" step="any" value="0"></label></div>
+  <div class="tw"><table style="min-width:0;margin-top:10px"><thead><tr><th>Source</th><th class="num">Rate</th><th class="num">Result</th><th>Note</th></tr></thead><tbody id="x_out"></tbody></table></div>
+  <p class="mut">Rates are typed in below, because live rates cannot be fetched from this page. Enter your local bank’s buy and sell quotes to see the real cost.</p></div></details>
+ <details class="pane" open><summary>Add a rate</summary><div class="pb"><div class="fg">
+  <label>Source (Market, or a bank name)<input id="r_src" placeholder="e.g. Market or your bank"></label><label>From (1 unit of)<input id="r_from" list="curs"></label><label>To<input id="r_to" list="curs"></label><label>Bank buys at (or single rate)<input id="r_buy" type="number" step="any"></label><label>Bank sells at (blank if same)<input id="r_sell" type="number" step="any"></label></div>
+  <div class="row"><button class="btn" onclick="fxAdd()">Save rate</button></div></div></details>
+ <details class="pane" open><summary>Saved rates<span class="r" id="fxN"></span></summary><div class="pb" id="fxList"></div></details>
 </section>
 </main>
 <script>
@@ -159,11 +193,11 @@ function unpin(z){pins=pins.filter(x=>x!==z);store.set("pd_pins",pins);renderClo
 const STATUS=["Draft","Sent to supplier","Confirmed","In production","Shipped","In customs","Delivered","Closed","Cancelled"],DONE=["Delivered","Closed","Cancelled"],CUR=["USD","EUR","GBP","GHS","CNY","INR","JPY","AED","ZAR","NGN","KES","CAD","AUD","CHF","SGD","XOF","SAR","TRY"];
 const today=()=>new Date().toISOString().slice(0,10),addD=n=>new Date(Date.now()+n*864e5).toISOString().slice(0,10);
 const dd=s=>Math.round((new Date(s)-new Date(today()))/864e5);
-let S=store.get("pd_pos",null),seq=store.get("pd_seq",0),editId=null,openId=null,armed=null;
+let S=store.get("pd_pos",null),seq=store.get("pd_seq",0),editId=null,openId=null,armed=null,PL=[];
 const mk=(sup,cc,item,qty,pr,cur,od,eta,st,car,trk)=>({id:"p"+(++seq),no:"PO-"+new Date().getFullYear()+"-"+String(seq).padStart(4,"0"),sup,cc,item,qty,pr,cur,od,eta,st,car,trk,nt:"",log:[{d:od,t:"PO created ("+st+")"}]});
 if(!S){S=[mk("Shenzhen Brightline Co.","CN","LED panels 60x60",400,18.5,"USD",addD(-30),addD(-3),"Shipped","Maersk","MSKU7782341"),mk("Rhein Pumpen GmbH","DE","Centrifugal pumps",12,940,"EUR",addD(-12),addD(9),"In production","DHL Freight",""),mk("Lagos Packaging Ltd","NG","Corrugated cartons",5000,0.42,"USD",addD(-2),addD(20),"Sent to supplier","","")];save()}
 function save(){store.set("pd_pos",S);store.set("pd_seq",seq)}
-const late=p=>!DONE.includes(p.st)&&p.eta&&dd(p.eta)<0,isOpen=p=>!DONE.includes(p.st),val=p=>(p.qty*p.pr)*(1+(p.tx||0)/100)+(+p.fr||0),money=(v,c)=>c+" "+v.toLocaleString(undefined,{maximumFractionDigits:2});
+S.forEach(p=>{if(!p.items)p.items=[{d:p.item,q:p.qty,p:p.pr}]});const late=p=>!DONE.includes(p.st)&&p.eta&&dd(p.eta)<0,isOpen=p=>!DONE.includes(p.st),val=p=>p.items.reduce((s,x)=>s+(+x.q||0)*(+x.p||0),0)*(1+(p.tx||0)/100)+(+p.fr||0),money=(v,c)=>c+" "+v.toLocaleString(undefined,{maximumFractionDigits:2});
 const tzOf=cc=>((COUNTRIES.find(x=>x.c===cc)||{z:[]}).z[0]);
 function renderDash(){const o=S.filter(isOpen),l=S.filter(late),soon=o.filter(p=>!late(p)&&dd(p.eta)<=7);
  $("#kpis").innerHTML=`<div class="kpi"><b>${o.length}</b><span>Open orders</span></div><div class="kpi ${l.length?"bad":""}"><b>${l.length}</b><span>Overdue</span></div><div class="kpi ${soon.length?"warn":""}"><b>${soon.length}</b><span>Due within 7 days</span></div><div class="kpi"><b>${S.filter(p=>p.st=="Shipped"||p.st=="In customs").length}</b><span>In transit</span></div>`;
@@ -174,19 +208,20 @@ function renderDash(){const o=S.filter(isOpen),l=S.filter(late),soon=o.filter(p=
  const by={};o.forEach(p=>by[p.cur]=(by[p.cur]||0)+val(p));
  $("#val").innerHTML=Object.keys(by).map(c=>`<div class="bar"><span>${c}</span><b>${by[c].toLocaleString(undefined,{maximumFractionDigits:0})}</b></div>`).join("")||'<p class="mut">No open orders.</p>'}
 function renderPO(){const q=$("#q").value.toLowerCase(),fs=$("#fs").value,fv=$("#fv").value;
- const L=S.filter(p=>(!q||[p.no,p.sup,p.item,p.trk,p.car].join(" ").toLowerCase().includes(q))&&(!fs||p.st==fs)&&(fv!="open"||isOpen(p))&&(fv!="late"||late(p))).reverse();
+ const L=S.filter(p=>(!q||[p.no,p.sup,p.items.map(x=>x.d).join(" "),p.trk,p.car].join(" ").toLowerCase().includes(q))&&(!fs||p.st==fs)&&(fv!="open"||isOpen(p))&&(fv!="late"||late(p))).reverse();
  $("#poCount").textContent=L.length+" of "+S.length;
- $("#poBody").innerHTML=L.map(p=>{const z=tzOf(p.cc),x=late(p);let h=`<tr><td><button class="lnk" onclick="tg('${p.id}')">${p.no}</button></td><td>${flag(p.cc)} ${esc(p.sup)}<div class="mut">${esc(cn(p.cc))}</div></td><td>${esc(p.item)}<div class="mut">${p.qty} × ${p.pr}</div></td><td class="num">${money(val(p),p.cur)}</td><td>${p.eta||""}${x?` <span class="chip bad">${-dd(p.eta)}d late</span>`:""}</td><td><span class="chip ${p.st=="Delivered"||p.st=="Closed"?"ok":x?"bad":""}">${p.st}</span></td><td>${z?`<span data-st="${z}"></span>`:""}</td><td><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></td></tr>`;
-  if(openId==p.id)h+=`<tr class="det"><td colspan="8"><div class="two"><div><b>Tracking</b><div class="mut">${esc(p.car)||"No carrier"} · ${esc(p.trk)||"no tracking number"}</div><ul class="log">${p.log.map(e=>`<li><span class="mut">${e.d}</span> ${esc(e.t)}</li>`).join("")}</ul>${p.nt?`<div class="mut">Notes: ${esc(p.nt)}</div>`:""}</div><div><label>Update status<select onchange="setSt('${p.id}',this.value)">${STATUS.map(s=>`<option ${s==p.st?"selected":""}>${s}</option>`).join("")}</select></label><label style="margin-top:8px">Add tracking update<input id="ev_${p.id}" placeholder="e.g. Departed Shenzhen port" onkeydown="if(event.key=='Enter')addEv('${p.id}')"></label><div class="row"><button class="btn s" onclick="addEv('${p.id}')">Add update</button><button class="btn g s" onclick="docFromPO('${p.id}')">Make proforma</button><button class="btn g s" onclick="edit('${p.id}')">Edit PO</button><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></div></div></div></td></tr>`;return h}).join("")||'<tr><td colspan="8" class="mut">No orders match. Open “New purchase order” to add one.</td></tr>';tick()}
+ $("#poBody").innerHTML=L.map(p=>{const z=tzOf(p.cc),x=late(p);let h=`<tr><td><button class="lnk" onclick="tg('${p.id}')">${p.no}</button></td><td>${flag(p.cc)} ${esc(p.sup)}<div class="mut">${esc(cn(p.cc))}</div></td><td>${esc(p.items[0].d)}<div class="mut">${p.items.length>1?"+"+(p.items.length-1)+" more item(s)":p.items[0].q+" × "+p.items[0].p}</div></td><td class="num">${money(val(p),p.cur)}</td><td>${p.eta||""}${x?` <span class="chip bad">${-dd(p.eta)}d late</span>`:""}</td><td><span class="chip ${p.st=="Delivered"||p.st=="Closed"?"ok":x?"bad":""}">${p.st}</span></td><td>${z?`<span data-st="${z}"></span>`:""}</td><td><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></td></tr>`;
+  if(openId==p.id)h+=`<tr class="det"><td colspan="8"><div class="two"><div><b>Items</b><ul class="log">${p.items.map(x=>`<li>${esc(x.d)} <span class="mut">${x.q} × ${x.p}</span></li>`).join("")}</ul><b>Tracking</b><div class="mut">${esc(p.car)||"No carrier"} · ${esc(p.trk)||"no tracking number"}</div><ul class="log">${p.log.map(e=>`<li><span class="mut">${e.d}</span> ${esc(e.t)}</li>`).join("")}</ul>${p.nt?`<div class="mut">Notes: ${esc(p.nt)}</div>`:""}</div><div><label>Update status<select onchange="setSt('${p.id}',this.value)">${STATUS.map(s=>`<option ${s==p.st?"selected":""}>${s}</option>`).join("")}</select></label><label style="margin-top:8px">Add tracking update<input id="ev_${p.id}" placeholder="e.g. Departed Shenzhen port" onkeydown="if(event.key=='Enter')addEv('${p.id}')"></label><div class="row"><button class="btn s" onclick="addEv('${p.id}')">Add update</button><button class="btn g s" onclick="docFromPO('${p.id}','Purchase Order')">Make PO document</button><button class="btn g s" onclick="docFromPO('${p.id}')">Make proforma</button><button class="btn g s" onclick="edit('${p.id}')">Edit PO</button><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></div></div></div></td></tr>`;return h}).join("")||'<tr><td colspan="8" class="mut">No orders match. Open “New purchase order” to add one.</td></tr>';tick()}
 const tg=id=>{openId=openId==id?null:id;renderPO()};
 function gotoPO(id){openId=id;show("po")}
 function setSt(id,s){const p=S.find(x=>x.id==id);if(p.st!=s){p.st=s;p.log.push({d:today(),t:"Status changed to "+s});save();renderPO();renderDash()}}
 function addEv(id){const i=$("#ev_"+id),p=S.find(x=>x.id==id);if(!i.value.trim())return;p.log.push({d:today(),t:i.value.trim()});save();renderPO()}
 function del(id){if(!arm("p"+id)){renderPO();return}S=S.filter(p=>p.id!=id);openId=null;save();renderPO();renderDash()}
-function edit(id){const p=S.find(x=>x.id==id);editId=id;const m={sup:"sup",cc:"cc",item:"item",qty:"qty",pr:"pr",cur:"cur",od:"od",eta:"eta",st:"st",car:"car",trk:"trk",nt:"nt",sad:1,sh:1,inc:1,pay:1,fr:1,tx:1};for(const k in m)$("#f_"+k).value=p[k]??"";$("#formT").textContent="Edit "+p.no;$("#formPane").open=true;$("#formPane").scrollIntoView()}
-function resetForm(){editId=null;$("#poForm").reset();$("#f_od").value=today();$("#f_eta").value=addD(30);$("#formT").textContent="New purchase order"}
-$("#poForm").onsubmit=e=>{e.preventDefault();const v=k=>$("#f_"+k).value;const d={sup:v("sup").trim(),cc:v("cc"),item:v("item").trim(),qty:+v("qty"),pr:+v("pr"),cur:v("cur").trim().toUpperCase(),od:v("od"),eta:v("eta"),st:v("st"),car:v("car").trim(),trk:v("trk").trim(),nt:v("nt").trim(),sad:v("sad").trim(),sh:v("sh").trim(),inc:v("inc").trim(),pay:v("pay").trim(),fr:+v("fr")||0,tx:+v("tx")||0};
- if(editId){const p=S.find(x=>x.id==editId);if(p.st!=d.st)p.log.push({d:today(),t:"Status changed to "+d.st});Object.assign(p,d);p.log.push({d:today(),t:"PO edited"})}else{const p=mk(d.sup,d.cc,d.item,d.qty,d.pr,d.cur,d.od,d.eta,d.st,d.car,d.trk);Object.assign(p,{nt:d.nt,sad:d.sad,sh:d.sh,inc:d.inc,pay:d.pay,fr:d.fr,tx:d.tx});S.push(p);openId=p.id}
+function edit(id){const p=S.find(x=>x.id==id);editId=id;const m={sup:"sup",cc:"cc",cur:"cur",od:"od",eta:"eta",st:"st",car:"car",trk:"trk",nt:"nt",sad:1,sh:1,inc:1,pay:1,fr:1,tx:1};for(const k in m)$("#f_"+k).value=p[k]??"";PL=p.items.map(x=>({...x}));plines();$("#formT").textContent="Edit "+p.no;$("#formPane").open=true;$("#formPane").scrollIntoView()}
+function resetForm(){editId=null;$("#poForm").reset();PL=[{d:"",q:1,p:0}];plines();$("#f_od").value=today();$("#f_eta").value=addD(30);$("#formT").textContent="New purchase order"}
+$("#poForm").onsubmit=e=>{e.preventDefault();const v=k=>$("#f_"+k).value,items=PL.filter(x=>x.d.trim()).map(x=>({d:x.d.trim(),q:+x.q||0,p:+x.p||0}));if(!items.length){$("#f_items").querySelector("input").focus();return}
+ const d={sup:v("sup").trim(),cc:v("cc"),cur:v("cur").trim().toUpperCase(),od:v("od"),eta:v("eta"),st:v("st"),car:v("car").trim(),trk:v("trk").trim(),nt:v("nt").trim(),sad:v("sad").trim(),sh:v("sh").trim(),inc:v("inc").trim(),pay:v("pay").trim(),fr:+v("fr")||0,tx:+v("tx")||0,items};
+ if(editId){const p=S.find(x=>x.id==editId);if(p.st!=d.st)p.log.push({d:today(),t:"Status changed to "+d.st});Object.assign(p,d);p.log.push({d:today(),t:"PO edited"})}else{const p=mk(d.sup,d.cc,"",0,0,d.cur,d.od,d.eta,d.st,d.car,d.trk);Object.assign(p,d);S.push(p);openId=p.id}
  save();resetForm();$("#formPane").open=false;renderPO();renderDash()};
 $("#cancelBtn").onclick=resetForm;
 $("#f_cc").innerHTML=COUNTRIES.map(c=>`<option value="${c.c}">${esc(c.n)} (${c.c})</option>`).join("");$("#f_cc").value="CN";
@@ -196,62 +231,313 @@ $("#fs").innerHTML='<option value="">All statuses</option>'+STATUS.map(s=>`<opti
 ["q","fs","fv"].forEach(i=>$("#"+i).oninput=renderPO);$("#cq").oninput=renderClock;
 
 /* Module registry: add a new feature by appending one entry here plus a <section class="tab" id="t-ID"> */
-const MODULES=[{id:"dash",label:"Dashboard",render:renderDash},{id:"po",label:"Purchase orders",render:renderPO},{id:"src",label:"Sourcing",render:()=>{srcLinks();rfqList()}},{id:"doc",label:"Quotations",render:renderDocs},{id:"clock",label:"World clock",render:renderClock}];
+const MODULES=[{id:"dash",label:"Dashboard",render:renderDash},{id:"po",label:"Purchase orders",render:renderPO},{id:"src",label:"Sourcing",render:rfqList},{id:"doc",label:"Documents",render:renderDocs},{id:"rep",label:"Reports",render:renderRep},{id:"fx",label:"Exchange rates",render:renderFx},{id:"clock",label:"World clock",render:renderClock}];
 $("#nav").innerHTML=MODULES.map(m=>`<button data-m="${m.id}" onclick="show('${m.id}')">${m.label}</button>`).join("");
 function show(id){MODULES.forEach(m=>{$("#t-"+m.id).classList.toggle("on",m.id==id);document.querySelector(`[data-m="${m.id}"]`).classList.toggle("on",m.id==id)});MODULES.find(m=>m.id==id).render();renderClock&&id!="clock"&&id=="dash"&&renderClock();tick();try{history.replaceState(null,"","#"+id)}catch(e){}window.scrollTo(0,0)}
-const arm=k=>{if(armed===k){armed=null;return true}armed=k;setTimeout(()=>{if(armed===k){armed=null;renderPO();renderDocs();rfqList()}},4000);return false};
-const VERSION="0.2.0",CHG=[["0.2.0","Themes, 12-hour clocks, sourcing and RFQ drafts, proforma invoices and invoices, any currency, per-row delete"],["0.1.0","Purchase orders, dashboard, world clock"]];
+const arm=k=>{if(armed===k){armed=null;return true}armed=k;setTimeout(()=>{if(armed===k){armed=null;renderPO();renderDocs();rfqList();renderFx()}},4000);return false};
+const VERSION="0.3.0",CHG=[["0.3.0","Purchase order documents, multi-item POs, tracking report with XLSX and PDF export, exchange rates with local bank rates, enhanced sourcing"],["0.2.0","Themes, 12-hour clocks, sourcing and RFQ drafts, proforma invoices and invoices, any currency, per-row delete"],["0.1.0","Purchase orders, dashboard, world clock"]];
 $("#ver").textContent="v"+VERSION;$("#chg").innerHTML=CHG.map(c=>`<div class="bar"><b>v${c[0]}</b><span style="width:auto">${c[1]}</span></div>`).join("");
 const th=$("#theme"),applyTh=()=>{const v=th.value;if(v)document.documentElement.dataset.theme=v;else delete document.documentElement.dataset.theme;store.set("pd_theme",v)};th.value=store.get("pd_theme","");th.onchange=applyTh;applyTh();
 $("#hfmt").value=H12?"12":"24";$("#hfmt").onchange=()=>{H12=$("#hfmt").value=="12";store.set("pd_12",H12);renderClock();renderPO();renderDash()};
-/* Sourcing + RFQ */
-const sv=k=>$("#s_"+k).value.trim();
-function srcParse(){const t=$("#s_raw").value,g=r=>{const m=t.match(r);return m?m[0]:""},set=(k,v)=>{if(v)$("#s_"+k).value=v};
- const qm=t.match(/(\d[\d,]*)\s*(pcs|pieces|units|sets|kg|tons?|tonnes|mt|meters|boxes|cartons|pallets|rolls|litres|liters)\b/i);
- set("qty",qm?qm[0]:"");set("mat",g(/\b(stainless steel\s?\d*|carbon steel|aluminium|aluminum|copper|brass|pvc|hdpe|cotton|polyester|leather|wood|plastic|rubber|glass|ceramic|steel|iron|nylon)\b/i));
- set("dim",g(/\d+(?:\.\d+)?\s*(?:x|×)\s*\d+(?:\.\d+)?(?:\s*(?:x|×)\s*\d+(?:\.\d+)?)?\s*(?:mm|cm|m|in)?|\d+(?:\.\d+)?\s*(?:mm|cm|inch|inches)\b/i));
- set("cert",(t.match(/\b(ISO\s?\d+|CE|RoHS|ASTM\s?\w+|API\s?\d+\w*|SGS|FDA|UL|ANSI\s?\w+|DIN\s?\d+|EN\s?\d+|PN\s?\d+)\b/g)||[]).join(", "));
- set("inc",g(/\b(EXW|FCA|FAS|FOB|CFR|CIF|CPT|CIP|DAP|DPU|DDP)\b/));
- const d=t.match(/\b(?:to|deliver(?:ed)? to|ship(?:ped)? to)\s+([A-Z][\w ]*?)(?=[,.;]|\s+(?:CIF|FOB|CFR|DAP|DDP|EXW|by)\b|$)/);set("dest",d?d[1]:"");
- set("bud",(t.match(/(?:budget|target price|under)\s*(?:of)?\s*([$€£]?\s?\d[\d,.]*\s?(?:usd|eur|gbp|ghs)?)/i)||[])[1]);
- set("prod",t.split(/[,;]/)[0].replace(qm?qm[0]:"","").replace(/^\s*(?:of|x)\s+/i,"").trim());
- $("#s_kw").value=[sv("prod"),sv("mat"),sv("dim"),sv("cert")].filter(Boolean).join(" ");srcLinks()}
-function srcLinks(){const kw=$("#s_kw").value.trim(),loc=$("#s_loc").value.trim(),e=encodeURIComponent,G=q=>"https://www.google.com/search?q="+e(q);
- const L=[["Local","Local suppliers",G(kw+" supplier "+loc)],["Local","Distributors / wholesale",G(kw+" distributor wholesale "+loc)],["Local","Maps","https://www.google.com/maps/search/"+e(kw+" "+loc)],["Foreign","Manufacturers / exporters",G(kw+" manufacturer exporter")],["Foreign","Alibaba","https://www.alibaba.com/trade/search?SearchText="+e(kw)],["Foreign","Made-in-China",G(kw+" site:made-in-china.com")],["Foreign","Global Sources",G(kw+" site:globalsources.com")],["Foreign","IndiaMART",G(kw+" site:indiamart.com")],["Foreign","ThomasNet",G(kw+" supplier site:thomasnet.com")]];
- $("#s_links").innerHTML=kw?["Local","Foreign"].map(g=>`<div style="width:100%"><b>${g} sources</b><div class="row" style="margin-top:6px">${L.filter(x=>x[0]==g).map(x=>`<a class="btn g s" target="_blank" rel="noopener" style="text-decoration:none" href="${x[2]}">${x[1]}</a>`).join("")}</div></div>`).join(""):'<p class="mut">Fill in the product fields to build search links.</p>'}
-function rfqGen(){const f=(l,v)=>v?l+": "+v+"\n":"",v=k=>$("#r_"+k).value.trim();
- const b=`Dear ${v("sup")||"Sir/Madam"},\n\nWe are sourcing the item below and would like to request your best quotation.\n\n`+f("Product",sv("prod"))+f("Material / grade",sv("mat"))+f("Size / dimensions",sv("dim"))+f("Quantity",sv("qty"))+f("Standards / certifications",sv("cert"))+f("Delivery terms",[sv("inc"),sv("dest")].filter(Boolean).join(" "))+f("Required by",sv("by"))+f("Other requirements",sv("oth"))+`\nPlease include in your quotation: unit price and currency, total price, minimum order quantity, lead time, payment terms, offer validity, packaging, and any relevant certificates or samples.${v("due")?"\nKindly reply by "+v("due")+".":""}\n\nKind regards,\n${v("me")}\n${v("co")}`;
- $("#r_sub").value="Request for Quotation – "+(sv("prod")||"your products");$("#r_body").value=b;rfqMail()}
-function rfqMail(){$("#r_mail").href="mailto:"+encodeURIComponent($("#r_em").value.trim())+"?subject="+encodeURIComponent($("#r_sub").value)+"&body="+encodeURIComponent($("#r_body").value)}
-function rfqCopy(){const b=$("#r_body");try{navigator.clipboard.writeText(b.value).catch(()=>{b.select();document.execCommand("copy")})}catch(e){b.select();try{document.execCommand("copy")}catch(x){}}}
+/* Sourcing (spec breakdown) + saved RFQs */
 let RF=store.get("pd_rfq",[]);
-function rfqSave(){if(!$("#r_body").value.trim())return;RF.push({id:"r"+Date.now(),sub:$("#r_sub").value,body:$("#r_body").value,sup:$("#r_sup").value,em:$("#r_em").value});store.set("pd_rfq",RF);rfqList()}
-function rfqLoad(id){const r=RF.find(x=>x.id==id);$("#r_sub").value=r.sub;$("#r_body").value=r.body;$("#r_sup").value=r.sup;$("#r_em").value=r.em;rfqMail();window.scrollTo(0,0)}
+window.rfqSaveText=t=>{if(!t.trim())return;const m=t.match(/^Subject:\s*(.*)/);RF.push({id:"r"+Date.now(),sub:m?m[1]:"RFQ draft",body:t});store.set("pd_rfq",RF);rfqList()};
+function rfqLoad(id){window.srcShow(RF.find(x=>x.id==id).body);$("#rfq").scrollIntoView()}
 function rfqDel(id){if(!arm("r"+id)){rfqList();return}RF=RF.filter(x=>x.id!=id);store.set("pd_rfq",RF);rfqList()}
-function rfqList(){$("#rfqN").textContent=RF.length+" saved";$("#rfqList").innerHTML=RF.map(r=>`<div class="bar"><b>${esc(r.sub)}</b><span class="mut" style="width:auto">${esc(r.sup)}</span><button class="btn g s" onclick="rfqLoad('${r.id}')">Open</button><button class="btn g s d" onclick="rfqDel('${r.id}')">${armed=='r'+r.id?'Confirm delete':'Delete'}</button></div>`).join("")||'<p class="mut">No saved drafts yet.</p>'}
+function rfqList(){$("#rfqN").textContent=RF.length+" saved";$("#rfqList").innerHTML=RF.map(r=>`<div class="bar"><b style="width:auto">${esc(r.sub)}</b><button class="btn g s" onclick="rfqLoad('${r.id}')">Open</button><button class="btn g s d" onclick="rfqDel('${r.id}')">${armed=='r'+r.id?'Confirm delete':'Delete'}</button></div>`).join("")||'<p class="mut">No saved drafts yet.</p>'}
+(function(){
+/*PURE_START*/
+var FIELDS=[['itemName','Item title'],['itemClass','Item class'],['qty','Quantity'],['unit','Unit'],['manufacturer','Manufacturer'],['brand','Brand'],['partNo','Part number'],['model','Model number'],['type','Type'],['size','Size / diameter'],['dimensions','Dimensions'],['rating','Pressure / rating'],['performance','Performance (torque, speed…)'],['connection','Connection'],['standards','Standards / flanges'],['materials','Materials'],['operation','Operation / actuator'],['color','Colour'],['structure','Structure'],['contents','Contents / features / pack'],['application','Used on / application'],['notes','Description / notes'],['extra','Other specifications']];
+var MULTI={materials:1,dimensions:1,performance:1,contents:1,notes:1,extra:1,standards:1};
+var KEY=/^([A-Za-z][A-Za-z \/\-.&]{1,50}?)\s*:\s*(.*)$/,DASH=/^([A-Za-z][A-Za-z ]{1,25}?)\s+[-\u2013\u2014]\s+(.+)$/;
+var STOP={TO:1,OF:1,FOR:1,AND:1,THE:1,ON:1,IN:1,WITH:1,SUIT:1,A:1};
+var PLAIN=/^(dimensions?|contents?|features?|special features|consisting of|includes?|furnished items?|detailed description|description|additional information|remarks?|notes?|materials?|material type|size|valve size|diameter|size range|nominal size|type|standards?)$/i;
+var S;
+function mapKey(k){var s=k.toLowerCase().trim(),t=function(r){return r.test(s)};
+ if(t(/manufactur|^mfr|^make$|^supplier|^oem|^maker/))return'manufacturer';
+ if(t(/^brand/))return'brand';
+ if(t(/part\s*(no|num|id|code)|^p\/?n$|catalog|article|type no|^ref|item code|^code$|^sku/))return'partNo';
+ if(t(/model/))return'model';
+ if(t(/flange|drill|^standards?\b|certif|complian/))return'standards';
+ if(t(/connection|^end$|thread|^port\b/))return'connection';
+ if(t(/rating|^pn$|^ip$|class|pressure/))return'rating';
+ if(t(/material|lining|seat|seal|^disc|body/))return'materials';
+ if(t(/dimension|inside|outside|bore|thick|width|height|depth|length|overall|weight|\bod\b|\bid\b|\bwd\b|\blg\b/))return'dimensions';
+ if(t(/size|dia(meter)?$|nominal|^dn$/))return'size';
+ if(t(/torque|speed|rpm|power|capacity|voltage|current|flow|temperature|frequency|efficiency|load|force|supply|output|input|range|response|accuracy/))return'performance';
+ if(t(/operat|actuat|drive|control/))return'operation';
+ if(t(/colou?r/))return'color';
+ if(t(/structure|construction|strand/))return'structure';
+ if(t(/content|feature|consist|includ|furnished|accessor|component|pack|quantity|qty|count/))return'contents';
+ if(t(/used|applic|usage|suitable|compatible/))return'application';
+ if(t(/additional|remark|note|info|comment|descript|detail/))return'notes';
+ if(t(/type$|^type|style/))return'type';
+ return null}
+function isList(k){return/content|feature|consist|includ|descript|detail|accessor|component|furnished|specification/i.test(k)}
+function splitNested(n){var w=n.trim().split(/\s+/),L=w.length,key=n,lead='';
+ if(L>=2&&!STOP[w[L-2].toUpperCase()]&&mapKey(w[L-2]+' '+w[L-1])){key=w.slice(L-2).join(' ');lead=w.slice(0,L-2).join(' ')}
+ else if(mapKey(w[L-1])){key=w[L-1];lead=w.slice(0,L-1).join(' ')}
+ return{lead:lead,key:key}}
+function add(n,v,src){v=(v||'').trim();if(!v)return;
+ if(S.f[n]){if(S.f[n].toLowerCase().indexOf(v.toLowerCase())<0)S.f[n]+=(MULTI[n]&&n!=='standards'?'\n':n==='application'?'; ':', ')+v}else{S.f[n]=v;S.src[n]=src}}
+function fmt(f,k,v){
+ if(f==='materials'){var lb=k.replace(/materials?|type/ig,'').trim();return lb?lb+': '+v:v}
+ if(f==='standards'){var pf=k.replace(/flanges?|standards?|drilling/ig,'').trim();return pf?pf+': '+v:v}
+ if(MULTI[f]||f==='size')return PLAIN.test(k.trim())?v:k+': '+v;
+ return v}
+function guess(c){c=c.trim().replace(/[,;]+$/,'');if(!c)return;
+ if(c.length<3){S.un.push(c);return}
+ if(c.length<40&&/\b(PN|DN|ANSI|BS|DIN|ISO|ASTM|API|JIS|IEC|NEMA)\s?-?\d/i.test(c)){add('standards',c,'guessed');return}
+ if(/^[\d.,\/]+\s?(mm|cm|m|in|inch|")?\s*[x×*]\s*[\d.,]+/i.test(c)){add('dimensions',c,'guessed');return}
+ if(c.length<=45&&/steel|iron|brass|bronze|ptfe|rubber|nbr|epdm|silicone|pvc|alumin|copper|nylon|viton|stainless|plastic|wood|bamboo|leather|cotton|paper|foam/i.test(c)){add('materials',c,'guessed');return}
+ add('contents',c,'guessed')}
+var UA='EA|PAC|PAK|PCS|PC|NOS|SETS?|PKT|CTN|PAIR|PR|ROLLS?|MTRS?|M|MM|CM|LTR|L|KG|G|LOT|DOZ|BAG|DRUM|REAM|BTL|CAN|TIN|PKG|BOX|FT|YD',US='EA|PAC|PAK|PCS|NOS|SETS?|PKT|CTN|PAIR|PR';
+function qtyMatch(l){var m,ok=function(m){var pre=l.replace(m[0],'').trim();return pre.length>=4&&!/:$/.test(pre)};
+ m=l.match(/(\d+\.\d{3})\s+([A-Za-z]{1,5})\s*$/);if(m&&ok(m))return m;
+ m=l.match(new RegExp('(?:\\s{2,}|\\t)(\\d+(?:[.,]\\d+)?)\\s+('+UA+')\\s*$','i'));if(m&&ok(m))return m;
+ m=l.match(new RegExp('\\s(\\d+(?:[.,]\\d+)?)\\s+('+US+')\\s*$','i'));if(m&&ok(m))return m;
+ m=l.match(/\s(\d+\.\d{3})\s*$/);return m&&ok(m)?m:null}
+function startsKey(l){return KEY.test(l)||DASH.test(l)}
+function mergeLines(lines){lines=lines.map(function(l){return l.trim()}).filter(Boolean);
+ var kc=lines.filter(startsKey).length,keyed=lines.length>1&&kc/lines.length>=0.5,out=[];
+ lines.forEach(function(l){var p=out[out.length-1],dim=/^[\d.,]+\s?(mm|cm|m|in)?\s*[x×*]\s*[\d.,]/i.test(l);
+  if(p!==undefined&&!/[.;:!?]$/.test(p)&&!startsKey(l)&&!dim&&(keyed||/^[a-z(]/.test(l)||(p.length>=32&&!/\)$/.test(p))))out[out.length-1]=p+' '+l;else out.push(l)});
+ return out}
+function proc(p,st){var rest=p,m,done=false;
+ while((m=rest.match(KEY))){var k=m[1].trim(),v=m[2],mm=v.match(KEY);
+  if(mm&&!mapKey(k)){st.labels.push(k);rest=v;continue}
+  if(mm){var sp=splitNested(mm[1]);if(mapKey(sp.key)){var skip=!sp.lead&&(/^(notes|contents)$/.test(mapKey(k))||sp.key.toUpperCase().split(' ').pop()===k.toUpperCase().split(' ').pop());if(!skip){st.cur={k:k,v:sp.lead};st.items.push(st.cur)}rest=sp.key+': '+mm[2];continue}}
+  st.cur={k:k,v:v.trim()};st.items.push(st.cur);if(!st.cur.v&&st.line&&isList(k))st.swallow=st.cur;done=true;break}
+ if(done)return;
+ var d=st.line&&rest.match(DASH);
+ if(d&&(mapKey(d[1])||d[1].trim().split(/\s+/).length<=3)){st.cur={k:d[1].trim(),v:d[2].trim()};st.items.push(st.cur);return}
+ var u=rest.match(/^(used on|used for|for use (?:on|with)|suitable for|compatible with|can be used (?:on|for|with|in))\s+(.*)$/i);
+ if(u){st.cur={k:'USED ON',v:u[2]};st.items.push(st.cur);return}
+ if(st.items.length&&/^(c\/w|complete with|comes with|supplied with)\b/i.test(rest)){st.feat.push(rest);return}
+ if(st.cur&&st.cur.v===''&&!st.cur.closed){st.cur.closed=1;st.cur.v=rest;return}
+ if(!st.items.length){st.lead.push(rest);return}
+ if((st.semi||st.cont)&&st.cur){var f0=mapKey(st.cur.k);st.cur.v+=(st.cur.v?(st.seg&&(!f0||/^(contents|notes|application)$/.test(f0))?'; ':', '):'')+rest;return}
+ st.feat.push(rest)}
+function feed(text,st){var n=0;text.split(';').forEach(function(seg){seg=seg.trim();if(!seg)return;
+ seg.split(/,\s*(?=[A-Za-z][A-Za-z \/\-.&]{1,50}\s*:)/).forEach(function(p,ix){p=p.trim();if(p){st.cont=n>0;st.seg=ix===0;proc(p,st);n++}})});st.cont=false}
+function prefixBlock(b,strict){if(b.length!==1)return false;var l=b[0].trim();if(/[:;]/.test(l))return false;
+ if(/^[^\s,;:]{2,25}\s*,\s*[A-Z0-9][A-Z0-9\-\/]{4,}$/.test(l))return true;
+ return!strict&&/^[A-Z0-9][A-Z0-9&.\-]{1,13}$/.test(l)}
+function norm(x){return x.toUpperCase().replace(/[^A-Z0-9]/g,'')}
+function isEcho(bl,it){if(!it||bl.length>3)return false;var t=norm(it.head.map(function(l){var m=qtyMatch(l);return m?l.replace(m[0],''):l}).join(' ')+' '+it.body.map(function(b){return b.join(' ')}).join(' '));
+ return bl.every(function(l){var n=norm(l);return!/[:;]/.test(l)&&n.length>=5&&t.indexOf(n)>=0})}
+function splitItems(raw){
+ var lines=raw.replace(/\r/g,'').split('\n').filter(function(l){return!/^\s*ITEM\s+DESCRIPTION\b/i.test(l)&&!/^\s*QTY\s+UNIT\s*$/i.test(l)});
+ var blocks=[],b=[];lines.forEach(function(l){if(l.trim()===''){if(b.length)blocks.push(b);b=[]}else b.push(l)});if(b.length)blocks.push(b);
+ if(!blocks.length)return[];
+ var isHead=function(bl){return bl.some(function(l){return qtyMatch(l)})};
+ if(!blocks.some(isHead)){var f=blocks[0];return[{head:[f[0]],body:[f.slice(1)].concat(blocks.slice(1)).filter(function(x){return x.length})}]}
+ var items=[],cur=null,pend=[];
+ blocks.forEach(function(bl){
+  if(isHead(bl)){var h=bl.slice();
+   if(pend.length){var pf=pend.pop();h=pf.concat(h);if(cur)pend.forEach(function(x){cur.body.push(x)})}
+   pend=[];cur={head:h,body:[]};items.push(cur)}
+  else if(!cur){pend.push(bl)}
+  else if(isEcho(bl,cur)){cur.echo=bl}
+  else if(prefixBlock(bl,false)){pend.push(bl)}
+  else{pend.forEach(function(x){cur.body.push(x)});pend=[];cur.body.push(bl)}});
+ pend.forEach(function(x){if(cur&&isEcho(x,cur))return;if(prefixBlock(x,true))items.push({head:x,body:[],orphan:true});else if(cur)cur.body.push(x)});
+ return items}
+function parseItem(it){
+ S={f:{},src:{},un:[],blank:[],raw:'',orphan:!!it.orphan,hasBody:it.body.length>0};
+ var hl=it.head.slice(),qm=null;
+ for(var i=0;i<hl.length;i++){qm=qtyMatch(hl[i]);if(qm){hl[i]=hl[i].replace(qm[0],'');break}}
+ if(qm){add('qty',String(parseFloat(qm[1].replace(',','.'))),'matched');add('unit',qm[2]?qm[2].toUpperCase():'','matched')}
+ var head=hl.join(' ').replace(/\s+/g,' ').trim();if(head)add('itemName',head,'matched');
+ S.raw=[it.head.join('\n')].concat(it.body.map(function(b){return b.join('\n')})).join('\n\n');
+ var flat=it.body.map(function(b){return b.join(' ')}).join(' ').replace(/\s+/g,' ');
+ var semis=(flat.match(/;/g)||[]).length;
+ var st={cur:null,items:[],lead:[],labels:[],feat:[],swallow:null,semi:semis>=2,line:semis<2};
+ if(st.semi)feed(flat,st);
+ else it.body.forEach(function(b){mergeLines(b).forEach(function(l){if(st.swallow){st.swallow.v+=(st.swallow.v?'; ':'')+l;return}feed(l,st)});st.swallow=null});
+ st.items=st.items.filter(function(x){if(!x.v&&!mapKey(x.k)){st.labels.push(x.k);return false}return true});
+ var lead=st.lead;
+ var cls=lead.concat(st.labels).join(' ').replace(/\s+/g,' ').trim();
+ if(cls&&cls.toLowerCase()!==head.toLowerCase())add('itemClass',cls,'matched');
+ st.items.forEach(function(x){if(!x.v){S.blank.push(x.k);return}var f=mapKey(x.k);
+  if(!f)add('extra',x.k+': '+x.v,'matched');else add(f,fmt(f,x.k,x.v),'matched')});
+ st.feat.forEach(guess);
+ if(!S.f.manufacturer&&it.head.length>1&&!qtyMatch(it.head[0])&&/^[A-Z0-9][A-Za-z0-9&.\-]{1,13}$/.test(it.head[0].trim()))add('manufacturer',it.head[0].trim(),'guessed');
+ var ct=head.split(/[\s,;:]+/).filter(function(t){return/^(?=[A-Z0-9\-\/]*\d)[A-Z0-9][A-Z0-9\-\/]{5,}$/.test(t)&&!/^\d+(\.\d+)?[A-Z]{1,5}$/.test(t)});
+ var allV=norm(Object.keys(S.f).filter(function(k){return k!=='itemName'}).map(function(k){return S.f[k]}).join(' '));
+ if(!S.f.partNo&&ct.length){var c0=ct.shift();add('partNo',c0,'guessed');
+  if(!S.f.manufacturer){var mr=head.match(new RegExp('([A-Za-z][A-Za-z&.\\- ]{1,24}?)\\s*[,;:]\\s*'+c0.replace(/[-\/]/g,'\\$&')));if(mr&&!/\d/.test(mr[1]))add('manufacturer',mr[1].trim(),'guessed')}}
+ var pn=norm(S.f.partNo||'');
+ ct.forEach(function(t){var n=norm(t);if(allV.indexOf(n)>=0||(pn&&(pn.indexOf(n)>=0||n.indexOf(pn)>=0)))return;add('extra','Other code in title: '+t,'guessed')});
+ var all=(head+' '+flat).replace(/\s+/g,' ');
+ if(!S.f.size){var sm=all.match(/\bDN\s?\d+\b/i);if(sm)add('size',sm[0],'guessed')}
+ if(!S.f.rating){var rm=all.match(/\bPN\s?\d+\b|\bclass\s?\d+\b/i);if(rm)add('rating',rm[0],'guessed')}
+ if(!S.f.size&&!S.f.dimensions){var dm=head.match(/\b\d+(?:\.\d+)?\s?(?:m|meters?|metres?|mm|cm)\b/i);if(dm)add('dimensions',dm[0],'guessed')}
+ return S}
+function parseAll(raw){return splitItems(raw).map(parseItem)}
+/*PURE_END*/
+var ITEMS=[],SEL=0;
+var UOM={EA:'each',PCS:'pieces',PC:'pieces',NOS:'pieces',PAC:'pack',PAK:'pack',PKT:'packet',PKG:'package',SET:'set',SETS:'set',PR:'pair',PAIR:'pair',ROLL:'roll',ROLLS:'roll',BOX:'box',CTN:'carton',LOT:'lot',M:'metres',MTR:'metres',MTRS:'metres',MM:'millimetres',CM:'centimetres',LTR:'litres',L:'litres',KG:'kilograms',G:'grams',DOZ:'dozen',BAG:'bag',DRUM:'drum',REAM:'ream',BTL:'bottle',CAN:'can',TIN:'tin',FT:'feet',YD:'yards'};
+var UR=[[/\b(gloves?|boots?|shoes?|socks?)\b/i,'pairs (PR)'],[/\b(wire|cable|rope|hose|pipe|tubing|chain|conduit|trunking|webbing|sling|belting|fabric|cloth)\b/i,'by the metre (M), or per coil, reel or drum'],[/\btape\b/i,'per roll (ROLL) or per metre (M)'],[/\b(oil|grease|paint|thinner|solvent|coolant|lubricant|chemical|fuel|diesel|resin|glue)\b/i,'by the litre (LTR) or kilogram (KG), or per drum or can'],[/\b(bolts?|nuts?|washers?|screws?|rivets?|nails?|gaskets?|o-?rings?|fuses?|bulbs?|sleeves?|ties|clips?|wipes|plugs?|rings?|discs?)\b/i,'pieces (PCS), or per pack or box (PAC/BOX) with the pack size stated'],[/\b(kits?|set)\b/i,'per SET, with the contents of the set stated']];
+function uomHint(it){var t=[H(it,'itemName'),H(it,'itemClass'),H(it,'type')].join(' ');for(var i=0;i<UR.length;i++)if(UR[i][0].test(t))return UR[i][1];return''}
+function lenHint(it){var m=(H(it,'itemName')+' '+H(it,'dimensions')+' '+H(it,'size')).match(/\b\d+(?:\.\d+)?\s?(?:m|meters?|metres?)\b/i);return m?m[0]:''}
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s).replace(/[&<>"]/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]})}
+function H(it,n){return(it.f[n]||'').trim()}
+function warns(it){var w=[],h=function(n){return H(it,n)},txt=it.raw+' '+Object.keys(it.f).map(function(k){return it.f[k]}).join(' ');
+ if(it.orphan)w.push('This line looks like the start of another item, but its quantity line was not pasted. Paste the full item if you need it included.');
+ if(!h('partNo'))w.push('No part number found. Searches will rely on the functional description, so matches will be equivalents, not exact.');
+ else if(it.src.partNo==='guessed')w.push('The part number ('+h('partNo')+') was guessed from the title. Confirm it is really a part number.');
+ else if(/\s/.test(h('partNo')))w.push('The part number contains spaces. Both the spaced and joined forms are searched, since suppliers list it either way.');
+ if(!h('manufacturer')&&!h('brand'))w.push('No manufacturer or brand found. Ask whether any brand is acceptable or an equivalent is fine.');
+ if(h('manufacturer')&&h('brand')&&h('manufacturer').toLowerCase()!==h('brand').toLowerCase())w.push('Manufacturer ('+h('manufacturer')+') and brand ('+h('brand')+') differ. Confirm which one to quote against.');
+ if(!h('qty'))w.push('No quantity found.');
+ var u=h('unit').toUpperCase();
+ if(h('qty')&&!u)w.push('No unit of measure was given. EA (each) is usually assumed, so confirm the real unit.');
+ if(h('qty')&&(u==='EA'||!u)){var uh=uomHint(it),lh=lenHint(it);
+  if(uh)w.push('The unit is EA (each), which requesters usually enter when the exact unit of measure is not known. For this item the likely selling unit is '+uh+'. Confirm it with the requester and state it on the RFQ.');
+  else if(lh)w.push('A length ('+lh+') appears in the spec. EA is right only if each piece is that long; otherwise confirm the total metres or the number of pieces.')}
+ if(!it.hasBody&&!it.orphan)w.push('Only a title was given, with no specification detail. Searches use the title text, so confirm the full requirements.');
+ if(/\blug\b/i.test(txt)&&/\bwafer\b/i.test(txt))w.push('The spec mentions both LUG and WAFER. These are different valve body styles, so confirm which one is needed.');
+ if(h('size')&&h('structure')&&/\d/.test(h('size'))&&/\d/.test(h('structure')))w.push('Both Size and Structure carry dimensions ("'+h('size')+'" and "'+h('structure')+'"). Confirm which is the overall diameter and which is the construction.');
+ if(/to suit/i.test(h('connection')+' '+h('standards')))w.push('The connection is given as "to suit". Confirm the actual flange or fitting standard so the right one is supplied.');
+ if(/#/.test(txt))w.push('The spec uses "#" between values (for example 61#71 cm). That is probably a range from–to, so confirm.');
+ if(it.blank.length)w.push('Left blank in the source: '+it.blank.join(', ')+'. Confirm if it matters.');
+ if(it.un.length)w.push(it.un.length+' detail(s) are still unplaced. Assign them above so they are included.');
+ return w}
+function queries(it){var h=function(n){return H(it,n)},q=[],mfr=h('manufacturer'),br=h('brand'),pn=h('partNo'),m1=mfr||br;
+ if(pn){var pj=pn.replace(/\s+/g,'');q.push(['Exact part number',(m1?m1+' ':'')+'"'+pn+'"']);if(pj!==pn)q.push(['Part number, joined form',(m1?m1+' ':'')+'"'+pj+'"']);
+  if(mfr&&br&&mfr.toLowerCase()!==br.toLowerCase())q.push(['Part number with brand',br+' "'+pj+'"']);
+  q.push(['Datasheet or catalogue',[m1,pj,'datasheet'].join(' ').trim()]);q.push(['Where to buy',[m1,pj,'buy price supplier export'].join(' ').trim()])}
+ if(h('model'))q.push(['Model number',[br||mfr,'"'+h('model')+'"'].join(' ').trim()]);
+ var fn=[h('itemClass')||h('itemName'),h('type'),br,h('size'),h('dimensions').split('\n')[0],h('rating'),h('materials').split('\n').slice(0,2).join(' '),h('operation')].join(' ').replace(/\s+/g,' ').trim().split(' ').slice(0,18).join(' ');
+ if(fn){q.push(['Equivalent by specification',fn]);if($('loc').checked)q.push(['Local supplier ('+$('locq').value.trim()+')',fn+' supplier '+$('locq').value.trim()])}
+ return q}
+function rfqBlock(it,tag){var u=H(it,'unit').toUpperCase(),q=[H(it,'qty'),H(it,'unit')].join(' ').trim();if(UOM[u])q+=' ('+UOM[u]+')';
+ var L=[tag+'Item: '+(H(it,'itemName')||H(it,'itemClass')),'Quantity: '+q];
+ if((!u||u==='EA')&&H(it,'qty')){var uh=uomHint(it);if(uh)L.push('Unit note: EA was entered as a placeholder. Please quote in the unit you normally sell (likely '+uh+') and state the pack size or length.')}
+ FIELDS.forEach(function(F){var n=F[0];if(['itemName','qty','unit'].indexOf(n)>=0)return;var v=H(it,n);if(v)L.push(F[1]+': '+v.replace(/\n/g,'; '))});return L}
+function TAIL(){var d=$('locq').value.trim()||'the delivery location';return['Please confirm: unit and total price, availability and lead time, country of origin, shipping terms to '+d+', quote validity, and any equivalent you can offer (with differences stated).','','Regards,',$('myco').value.trim()||'[Your name / company]']}
+function rfqOne(it){return['Subject: Request for quotation – '+(H(it,'itemName')||H(it,'itemClass')||'item'),'','Hello,','','Please quote for the following:',''].concat(rfqBlock(it,''),[''],TAIL()).join('\n')}
+function rfqAll(){var L=['Subject: Request for quotation – '+ITEMS.length+' items','','Hello,','','Please quote for the following '+ITEMS.length+' items:',''];
+ ITEMS.forEach(function(it,i){L=L.concat(rfqBlock(it,'Item '+(i+1)+' – '),[''])});return L.concat(TAIL()).join('\n')}
+function cp(t,el){var ok=false;try{if(navigator.clipboard){navigator.clipboard.writeText(t);ok=true}}catch(e){}
+ if(!ok){var a=document.createElement('textarea');a.value=t;document.body.appendChild(a);a.select();try{ok=document.execCommand('copy')}catch(e){}a.remove()}
+ el.textContent=ok?'Copied.':'Copy failed. Select the text and copy it manually.'}
+function pick(i){SEL=i;S=ITEMS[i];render()}
+function renderItems(){$('itc').hidden=ITEMS.length<2;
+ $('items').innerHTML=ITEMS.map(function(it,i){var n=warns(it).length;return'<button class="it'+(i===SEL?' on':'')+'" data-i="'+i+'">#'+(i+1)+' · '+esc((H(it,'itemName')||'(untitled)').slice(0,60))+' · '+esc([H(it,'qty'),H(it,'unit')].join(' ').trim())+(H(it,'partNo')?' · '+esc(H(it,'partNo')):'')+(n?' · ⚠ '+n:'')+'</button>'}).join('');
+ $('items').querySelectorAll('button').forEach(function(b){b.onclick=function(){pick(+b.getAttribute('data-i'))}})}
+function render(){$('out').hidden=false;
+ $('fields').innerHTML=FIELDS.map(function(F){var n=F[0],v=S.f[n]||'',s=S.src[n]||'',tag=v&&s?'<span class="b '+s+'">'+s+'</span>':'';
+  var el=MULTI[n]?'<textarea data-f="'+n+'" style="min-height:64px">'+esc(v)+'</textarea>':'<input data-f="'+n+'"'+(n==='unit'?' list="uoms"':'')+' value="'+esc(v)+'">';
+  var nm=n==='unit'&&UOM[v.toUpperCase()]?' ('+UOM[v.toUpperCase()]+')':'';
+  return'<div><label>'+F[1]+nm+tag+'</label>'+el+'</div>'}).join('');
+ $('fields').querySelectorAll('[data-f]').forEach(function(e){e.oninput=function(){var n=e.getAttribute('data-f');S.f[n]=e.value;S.src[n]='manual';refresh()}});
+ $('unc').hidden=!S.un.length;
+ $('unl').innerHTML=S.un.map(function(u,i){return'<div class="un"><span>'+esc(u)+'</span><select data-u="'+i+'"><option value="">Assign to…</option>'+FIELDS.map(function(F){return'<option value="'+F[0]+'">'+F[1]+'</option>'}).join('')+'<option value="_x">Ignore</option></select></div>'}).join('');
+ $('unl').querySelectorAll('select').forEach(function(sel){sel.onchange=function(){var i=+sel.getAttribute('data-u'),v=sel.value;if(!v)return;var t=S.un[i];if(v!=='_x')add(v,t,'manual');S.un.splice(i,1);render()}});
+ refresh()}
+function refresh(){var w=warns(S);
+ $('warn').innerHTML=w.length?w.map(function(x){return'<div class="w">'+esc(x)+'</div>'}).join(''):'<p class="s">Nothing obvious to flag.</p>';
+ var qs=queries(S);
+ $('qs').innerHTML=qs.length?qs.map(function(q){var e=encodeURIComponent(q[1]);
+  return'<div class="q"><strong>'+esc(q[0])+'</strong><code>'+esc(q[1])+'</code><a target="_blank" rel="noopener" href="https://www.google.com/search?q='+e+'">Google</a><a target="_blank" rel="noopener" href="https://www.bing.com/search?q='+e+'">Bing</a><a target="_blank" rel="noopener" href="https://www.alibaba.com/trade/search?SearchText='+e+'">Alibaba</a><a target="_blank" rel="noopener" href="https://www.google.com/search?tbm=shop&q='+e+'">Shopping</a></div>'}).join(''):'<p class="s">Add some details to generate searches.</p>';
+ $('rfq').value=rfqOne(S);renderItems()}
+function run(r){if(!r.trim())return;ITEMS=parseAll(r);if(!ITEMS.length)return;SEL=0;S=ITEMS[0];render();
+ try{localStorage.setItem('ss_raw',r)}catch(e){}}
+var X1="ITEM DESCRIPTION QTY UNIT\nSPIDER,\nCOUPLING:TIMKEN;68514412275   1.000 EA\n\nSPIDER, COUPLING: MANUFACTURER: TIMKEN, PART NO: 68514412275; COUPLING TYPE: SW190; MATERIAL: NBR; INSIDE DIAMETER: 57.15 MM; APPLICATION: SNAP WRAP; THICKNESS: 22.35 MM; OUTSIDE DIAMETER: 131.57 MM; BRAND: LOVEJOY\n\nTIMKEN,68514412275\nCOUPLING SHAFT   2.000 EA\nFLEXIBLE:RRS190;PE;SPACER\n\nCOUPLING, SHAFT FLEXIBLE: TYPE: RRS SPACER, \"SNAP WRAP\"; BORE DIAMETER: 60 MM; TORQUE: 285 NM; MATERIAL: LOW CARBON STEEL SHEET(CRCA); SPEED: 100 RPM; FURNISHED ITEMS: POLYURETHANE INSERT; COMMERCIAL SIZE: RRS190; DIMENSIONS: DIA 129 X LG 248 MM; BRAND: LOVEJOY";
+var X2="Examination Couch                  8.000   EA\n\nExamination couch\nBRAND:\nMATERIAL TYPE:Stainless steel, leather covered foam\n\nDETAILED DESCRIPTION:\nAdjustable head part\n\nTable with side lockers                9.000   EA\n\nOffice table\ncolour - coffee\nMaterial - Wooden\n140cm x 75cm x 75cm,\n\nComes with side locker\n\nMedical Instrument Cabinet            2.000   EA\n\nMedical Instrument Cabinet\nProduct Size - H1800*W850*D500mm\nGross Weight - 40KG\nMaterial - High quality plate, finish:\nPainted\nUsage - Hospital, clinic, drugstore,\nlaboratory etc\n\nDiagnostic set                   2.000   SET\n\nDiagnostic set\nFeatures:\nConsisting of Otoscope\n3 Speculae\nNasal Speculum\nBattery";
+var X3="ITEM DESCRIPTION QTY UNIT\nVALVE BTRFL:WFR ACTR 8IN HUK   1.000 EA\nDA2014WG16\n\nVALVE, BUTTERFLY: PART NO: DA 2014WG 16; TYPE: WAFER; VALVE SIZE: 8 IN; DESIGN RATING: PN16; CONNECTION TYPE: LUG; CONNECTION SIZE: TO SUIT FLANGES: PN6; PN10; PN16; ANSI150; BS10 TABLE E; BODY MATERIAL: CAST IRON; OPERATED: DOUBLE ACTING PRISMA PNEUMATIC ACTUATOR; LINING MATERIAL: CI/SS/SILICONE; BRAND: HUK";
+var X4="BUSHING:ID 32MM;REGAL\nREXNORD;SDSM32MM                  1.000   EA\n\nBUSHING: MANUFACTURER: REGAL REXNORD, PART NO: SDSM32MM; TYPE: SURE-GRIP, QUICK DISCONNECT; INSIDE DIAMETER: 32 MM; OUTSIDE DIAMETER: 81 MM; LENGTH: 33.3 MM; MATERIAL: STEEL; SPECIAL FEATURES: KEY: 10 X 8 MM; BRAND: TB WOODS\n\nVALVE,                           11.000   EA\nGATE:KREBS;TG150PN10AC174PG\nRLSTSG\n\nVALVE, GATE: OEM: KREBBS, PART NO: TG 150PN10-AC-174-PGR-LST-SG; VALVE SIZE: 150 MM; DESIGN RATING: 150 PSI; CONNECTION TYPE: FLANGE; STYLE: KNIFE; PORT TYPE: STRAIGHT BORE\n\n,TG 150PN10-AC-174-PGR-LST-SG\n\nHeavy Duty Fire Fighter Gloves                20.000\n\nHEAVY DUTY FIRE FIGHTER\nGLOVES\nMANUFACTURER: PAK TECH\nLEATHER; PART ID: PTL-9187\nOUTER MATERIAL:Silicone Coated\nKevlar Fabric\nPALM THICKNESS: 1.3 mm\nCOLOR: Biege and Yellow\nSIZE RANGE:  11\n\nSC-LC Patch Cord/5 meters                    40.000   EA\n\nPOLE:ELECTRICAL;TEAK;12M          20.000   EA\n\nPOLE: TYPE: ELECTRICAL; MATERIAL: TEAK WOOD; LENGTH: 12 METERS";
+$('go').onclick=function(){run($('raw').value)};
+$('s1').onclick=function(){$('raw').value=X1;run(X1)};
+$('s2').onclick=function(){$('raw').value=X2;run(X2)};
+$('s3').onclick=function(){$('raw').value=X3;run(X3)};
+$('s4').onclick=function(){$('raw').value=X4;run(X4)};
+$('clr').onclick=function(){$('raw').value='';$('out').hidden=true;ITEMS=[]};
+$('loc').onchange=function(){if(S)refresh()};
+$('cp').onclick=function(){cp($('rfq').value,$('cps'))};
+$('allr').onclick=function(){$('rfq').value=rfqAll();$('cps').textContent='Showing the RFQ for all items.'};
+$('tsv').onclick=function(){var R=[['#','Item','Qty','Unit','Manufacturer','Brand','Part no','Model','Type','Size','Materials','Flags']];
+ ITEMS.forEach(function(it,i){R.push([i+1,H(it,'itemName'),H(it,'qty'),H(it,'unit'),H(it,'manufacturer'),H(it,'brand'),H(it,'partNo'),H(it,'model'),H(it,'type'),H(it,'size'),H(it,'materials').replace(/\n/g,'; '),warns(it).length])});
+ cp(R.map(function(r){return r.join('\t')}).join('\n'),$('tss'))};
+try{var sv=localStorage.getItem('ss_raw');if(sv)$('raw').value=sv}catch(e){}
+
+function mh(){var t=$('rfq').value,m=t.match(/^Subject:\s*(.*)\n+/),s=m?m[1]:'',b=m?t.slice(m[0].length):t;$('mail').href='mailto:?subject='+encodeURIComponent(s)+'&body='+encodeURIComponent(b)}
+['input'].forEach(function(e){$('rfq').addEventListener(e,mh)});['mouseenter','focus','touchstart','click'].forEach(function(e){$('mail').addEventListener(e,mh)});
+function poLine(it){var pn=H(it,'partNo'),br=H(it,'manufacturer')||H(it,'brand');return{d:[H(it,'itemName')||H(it,'itemClass'),br,pn?'P/N '+pn:''].filter(Boolean).join(', '),q:parseFloat(H(it,'qty'))||1,p:0}}
+$('rfqsv').onclick=function(){window.rfqSaveText($('rfq').value)};
+$('onepo').onclick=function(){if(S)window.toPO([poLine(S)])};
+$('allpo').onclick=function(){window.toPO(ITEMS.map(poLine))};
+$('locq').oninput=function(){if(S)refresh()};
+window.srcShow=function(t){$('out').hidden=false;$('rfq').value=t;mh()};
+
+})();
 /* Proforma invoices and invoices */
 let DOCS=store.get("pd_docs",[]),dseq=store.get("pd_dseq",0),dId=null,LN=[];
-const DF=["type","no","date","due","cur","ref","sn","sa","bn","ba","inc","pay","dis","tax","fr","nt"],m2=(v,c)=>(c?c+" ":"")+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
-const dNo=()=>($("#d_type").value=="Invoice"?"INV-":"PI-")+new Date().getFullYear()+"-"+String(dseq+1).padStart(4,"0");
+const DF=["type","no","date","due","cur","ref","sn","sa","bn","ba","inc","pay","dis","tax","fr","nt","st"],m2=(v,c)=>(c?c+" ":"")+v.toLocaleString(undefined,{minimumFractionDigits:2,maximumFractionDigits:2});
+const dNo=()=>({"Invoice":"INV-","Purchase Order":"POD-"}[$("#d_type").value]||"PI-")+new Date().getFullYear()+"-"+String(dseq+1).padStart(4,"0");
 function docRead(){const o={L:LN.map(x=>({...x}))};DF.forEach(k=>o[k]=$("#d_"+k).value);return o}
-function docFill(o){DF.forEach(k=>$("#d_"+k).value=o[k]??"");LN=o.L.map(x=>({...x}));lines();docPreview()}
-function lines(){const g='style="grid-template-columns:3fr 1fr 1fr auto;padding-top:6px"';$("#d_items").innerHTML=`<div class="fg" ${g}><span class="mut">Description</span><span class="mut">Qty</span><span class="mut">Unit price</span><span></span></div>`+LN.map((x,i)=>`<div class="fg" ${g}><input data-i="${i}" data-k="d" value="${esc(x.d)}" placeholder="Item description"><input data-i="${i}" data-k="q" type="number" step="any" value="${x.q}"><input data-i="${i}" data-k="p" type="number" step="any" value="${x.p}"><button class="btn g s d" onclick="rmLine(${i})">✕</button></div>`).join("")}
+function docFill(o){DF.forEach(k=>$("#d_"+k).value=o[k]??(k=="st"?"Draft":""));LN=o.L.map(x=>({...x}));lines();docPreview()}
 function addLine(){LN.push({d:"",q:1,p:0});lines();docPreview()}
-function rmLine(i){LN.splice(i,1);if(!LN.length)LN.push({d:"",q:1,p:0});lines();docPreview()}
 function docTot(o){const sub=o.L.reduce((s,x)=>s+(+x.q||0)*(+x.p||0),0),dc=sub*(+o.dis||0)/100,tx=(sub-dc)*(+o.tax||0)/100,fr=+o.fr||0;return{sub,dc,tx,fr,tot:sub-dc+tx+fr}}
-function docPreview(){const o=docRead(),t=docTot(o);$("#docView").innerHTML=`<div class="paper" style="max-width:760px;margin:8px auto;background:#fff;color:#111;padding:28px;border:1px solid #ddd"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">${esc(o.type)}</h2><div>No. ${esc(o.no)}</div><div>Date: ${esc(o.date)}</div>${o.due?`<div>${o.type=="Invoice"?"Due":"Valid until"}: ${esc(o.due)}</div>`:""}${o.ref?`<div>Ref: ${esc(o.ref)}</div>`:""}</div><div style="text-align:right"><b>${esc(o.sn)}</b><div>${esc(o.sa)}</div></div></div><p><b>Bill to</b><br>${esc(o.bn)}<br>${esc(o.ba)}</p><table style="min-width:0"><thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead><tbody>${o.L.map(x=>`<tr><td>${esc(x.d)}</td><td class="num">${esc(x.q)}</td><td class="num">${m2(+x.p||0)}</td><td class="num">${m2((+x.q||0)*(+x.p||0))}</td></tr>`).join("")}</tbody></table><div style="text-align:right;margin-top:10px">Subtotal ${m2(t.sub)}<br>${+o.dis>0?`Discount (${esc(o.dis)}%) −${m2(t.dc)}<br>`:""}${+o.tax>0?`Tax (${esc(o.tax)}%) ${m2(t.tx)}<br>`:""}${t.fr?`Freight / other ${m2(t.fr)}<br>`:""}<b style="font-size:17px">Total ${m2(t.tot,esc(o.cur))}</b></div>${o.inc||o.pay?`<p>${o.inc?"Incoterm: "+esc(o.inc)+"<br>":""}${o.pay?"Payment terms: "+esc(o.pay):""}</p>`:""}<p style="white-space:pre-wrap">${esc(o.nt)}</p></div>`}
+function docPreview(){const o=docRead(),t=docTot(o);$("#docView").innerHTML=`<div class="paper" style="max-width:760px;margin:8px auto;background:#fff;color:#111;padding:28px;border:1px solid #ddd"><div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap"><div><h2 style="margin:0">${esc(o.type)}</h2><div>No. ${esc(o.no)}</div><div>Date: ${esc(o.date)}</div>${o.due?`<div>${{"Invoice":"Due","Purchase Order":"Delivery by"}[o.type]||"Valid until"}: ${esc(o.due)}</div>`:""}${o.ref?`<div>Ref: ${esc(o.ref)}</div>`:""}</div><div style="text-align:right"><b>${esc(o.sn)}</b><div>${esc(o.sa)}</div></div></div><p><b>${o.type=="Purchase Order"?"Vendor":"Bill to"}</b><br>${esc(o.bn)}<br>${esc(o.ba)}</p><table style="min-width:0"><thead><tr><th>Description</th><th class="num">Qty</th><th class="num">Unit price</th><th class="num">Amount</th></tr></thead><tbody>${o.L.map(x=>`<tr><td>${esc(x.d)}</td><td class="num">${esc(x.q)}</td><td class="num">${m2(+x.p||0)}</td><td class="num">${m2((+x.q||0)*(+x.p||0))}</td></tr>`).join("")}</tbody></table><div style="text-align:right;margin-top:10px">Subtotal ${m2(t.sub)}<br>${+o.dis>0?`Discount (${esc(o.dis)}%) −${m2(t.dc)}<br>`:""}${+o.tax>0?`Tax (${esc(o.tax)}%) ${m2(t.tx)}<br>`:""}${t.fr?`Freight / other ${m2(t.fr)}<br>`:""}<b style="font-size:17px">Total ${m2(t.tot,esc(o.cur))}</b></div>${o.inc||o.pay?`<p>${o.inc?"Incoterm: "+esc(o.inc)+"<br>":""}${o.pay?"Payment terms: "+esc(o.pay):""}</p>`:""}<p style="white-space:pre-wrap">${esc(o.nt)}</p></div>`}
 function docReset(){dId=null;$("#d_type").value="Proforma Invoice";docFill({type:"Proforma Invoice",no:dNo(),date:today(),due:addD(30),cur:"USD",dis:0,tax:0,fr:0,L:[{d:"",q:1,p:0}]});$("#docT").textContent="New document"}
 function docSave(){const o=docRead();if(dId)Object.assign(DOCS.find(x=>x.id==dId),o);else{o.id="d"+(++dseq);DOCS.push(o);dId=o.id}store.set("pd_docs",DOCS);store.set("pd_dseq",dseq);$("#docT").textContent="Edit "+o.no;renderDocs()}
 function docLoad(id){dId=id;const o=DOCS.find(x=>x.id==id);docFill(o);$("#docT").textContent="Edit "+o.no;window.scrollTo(0,0)}
 function docDel(id){if(!arm("d"+id)){renderDocs();return}DOCS=DOCS.filter(x=>x.id!=id);if(dId==id)docReset();store.set("pd_docs",DOCS);renderDocs()}
 function renderDocs(){$("#docN").textContent=DOCS.length+" saved";$("#docList").innerHTML=DOCS.map(d=>`<div class="bar"><b>${esc(d.no)}</b><span class="mut" style="width:auto">${esc(d.type)} · ${esc(d.bn)} · ${m2(docTot(d).tot,esc(d.cur))}</span><button class="btn g s" onclick="docLoad('${d.id}')">Open</button><button class="btn g s d" onclick="docDel('${d.id}')">${armed=='d'+d.id?'Confirm delete':'Delete'}</button></div>`).join("")||'<p class="mut">No saved documents yet.</p>'}
-function docFromPO(id){const p=S.find(x=>x.id==id);docReset();docFill({...docRead(),ref:p.no,cur:p.cur,inc:p.inc||"",pay:p.pay||"",tax:p.tx||0,fr:p.fr||0,L:[{d:p.item,q:p.qty,p:p.pr}]});show("doc")}
+function docFromPO(id,type){const p=S.find(x=>x.id==id),po=type=="Purchase Order";docReset();type=type||"Proforma Invoice";$("#d_type").value=type;docFill({...docRead(),type,no:po?p.no:dNo(),ref:po?"":p.no,cur:p.cur,inc:p.inc||"",pay:p.pay||"",tax:p.tx||0,fr:p.fr||0,bn:po?p.sup:"",ba:po?(p.sad||""):"",nt:po&&p.sh?"Ship to: "+p.sh:"",L:p.items.map(x=>({...x}))});show("doc")}
+const lineUI=(A,g)=>{const s='style="grid-template-columns:3fr 1fr 1fr auto;padding-top:6px"';return`<div class="fg" ${s}><span class="mut">Description</span><span class="mut">Qty</span><span class="mut">Unit price</span><span></span></div>`+A.map((x,i)=>`<div class="fg" ${s}><input data-g="${g}" data-i="${i}" data-k="d" value="${esc(x.d)}" placeholder="Item description"><input data-g="${g}" data-i="${i}" data-k="q" type="number" step="any" value="${x.q}"><input data-g="${g}" data-i="${i}" data-k="p" type="number" step="any" value="${x.p}"><button type="button" class="btn g s d" onclick="rmL('${g}',${i})">✕</button></div>`).join("")};
+function lines(){$("#d_items").innerHTML=lineUI(LN,"d")}
+function plines(){$("#f_items").innerHTML=lineUI(PL,"p")}
+function pAdd(){PL.push({d:"",q:1,p:0});plines()}
+function rmL(g,i){const A=g=="p"?PL:LN;A.splice(i,1);if(!A.length)A.push({d:"",q:1,p:0});if(g=="p")plines();else{lines();docPreview()}}
+function toPO(A){if(PL.length==1&&!PL[0].d.trim())PL=[];A.forEach(x=>PL.push({...x}));plines();$("#formPane").open=true;show("po");$("#formPane").scrollIntoView()}
+/* Exchange rates */
+let FX=store.get("pd_fx",[]);
+function fxFind(f,t,s){if(f==t)return{buy:1,sell:1};let b=null;FX.forEach(x=>{if(b||(s&&x.src!=s))return;if(x.from==f&&x.to==t)b={buy:x.buy,sell:x.sell};else if(x.from==t&&x.to==f)b={buy:1/x.sell,sell:1/x.buy}});return b}
+function fxAdd(){const v=k=>$("#r_"+k).value.trim(),b=+v("buy"),s=+v("sell")||b,f=v("from").toUpperCase(),t=v("to").toUpperCase();if(!f||!t||!b)return;FX.push({id:"x"+Date.now(),src:v("src")||"Market",from:f,to:t,buy:Math.min(b,s),sell:Math.max(b,s)});store.set("pd_fx",FX);["buy","sell"].forEach(k=>$("#r_"+k).value="");renderFx()}
+function fxDel(id){if(!arm("x"+id)){renderFx();return}FX=FX.filter(x=>x.id!=id);store.set("pd_fx",FX);renderFx()}
+function xRender(){const a=+$("#x_amt").value||0,f=$("#x_from").value.trim().toUpperCase(),t=$("#x_to").value.trim().toUpperCase(),mg=+$("#x_mg").value||0,o=[];let m0=0;
+ const row=(s,r,n)=>`<tr><td>${esc(s)}</td><td class="num">${r.toFixed(4)}</td><td class="num"><b>${m2(a*r,esc(t))}</b></td><td class="mut">${n}</td></tr>`;
+ if(f&&t)[...new Set(FX.map(x=>x.src))].forEach(s=>{const r=fxFind(f,t,s);if(!r)return;const mid=(r.buy+r.sell)/2;m0=m0||mid;
+  if(r.buy==r.sell)o.push(row(s,r.sell,"single rate"));else o.push(row(s+" · you buy "+f,r.sell,"bank sells to you (paying a supplier)"),row(s+" · you sell "+f,r.buy,"bank buys from you (receiving)"),row(s+" · mid",mid,"spread "+((r.sell-r.buy)/mid*100).toFixed(2)+"%"))});
+ if(mg&&m0)o.push(row("Mid + "+mg+"% margin",m0*(1+mg/100),"estimated bank cost"));
+ $("#x_out").innerHTML=o.join("")||`<tr><td colspan="4" class="mut">${f&&t?"No saved rate for "+esc(f)+" to "+esc(t)+". Add one below.":"Enter both currencies to convert."}</td></tr>`}
+function renderFx(){$("#fxN").textContent=FX.length+" saved";$("#fxList").innerHTML=FX.map(x=>`<div class="bar"><b style="width:auto">${esc(x.src)}</b><span style="width:auto">1 ${esc(x.from)} to ${esc(x.to)}: buy ${x.buy} / sell ${x.sell}</span><button class="btn g s d" onclick="fxDel('${x.id}')">${armed=='x'+x.id?'Confirm delete':'Delete'}</button></div>`).join("")||'<p class="mut">No rates saved yet.</p>';xRender()}
+/* Tracking report and export */
+const DST=["Draft","Issued","Paid / accepted","Cancelled"];
+function repRows(){const r=[];S.forEach(p=>r.push({type:"PO register",no:p.no,party:p.sup,date:p.od,ref:p.trk?"Tracking "+p.trk:"",st:p.st,cur:p.cur,tot:val(p),items:p.items}));
+ DOCS.forEach(d=>r.push({type:d.type,no:d.no,party:d.bn,date:d.date,ref:d.ref,st:d.st||"Draft",cur:d.cur,tot:docTot(d).tot,items:d.L}));
+ const q=$("#rq").value.toLowerCase(),t=$("#rt").value,s=$("#rs").value;
+ return r.filter(x=>(!q||[x.no,x.party,x.ref].join(" ").toLowerCase().includes(q))&&(!t||x.type==t)&&(!s||x.st==s)).sort((a,b)=>(b.date||"").localeCompare(a.date||""))}
+function renderRep(){const sel=$("#rs");if(!sel.options.length)sel.innerHTML='<option value="">All statuses</option>'+[...new Set([...STATUS,...DST])].map(s=>`<option>${s}</option>`).join("");
+ const R=repRows(),tc=$("#rp").value.trim().toUpperCase();$("#repN").textContent=R.length+" entries";$("#convH").textContent=tc?"In "+tc:"";
+ const cv=r=>{if(!tc)return"";if(r.cur==tc)return m2(r.tot);const x=fxFind(r.cur,tc,"");return x?m2(r.tot*(x.buy+x.sell)/2):"no rate"};
+ $("#repB").innerHTML=R.map(r=>`<tr><td>${esc(r.type)}</td><td>${esc(r.no)}</td><td>${esc(r.party)}</td><td>${esc(r.date)}</td><td>${esc(r.ref)}</td><td><span class="chip">${esc(r.st)}</span></td><td class="num">${m2(r.tot,esc(r.cur))}</td><td class="num">${cv(r)}</td></tr>`).join("")||'<tr><td colspan="8" class="mut">Nothing yet. POs, proformas and invoices appear here automatically.</td></tr>';
+ const by={};R.forEach(r=>{const k=r.type+"|"+r.cur;by[k]=(by[k]||0)+r.tot});
+ $("#repT").innerHTML=Object.keys(by).sort().map(k=>{const[t,c]=k.split("|");return`<div class="bar"><span style="width:150px">${esc(t)}</span><span style="width:auto">${m2(by[k],esc(c))}</span></div>`}).join("")||'<p class="mut">No totals yet.</p>';
+ const n=t=>DOCS.filter(d=>d.type==t).length;$("#repK").innerHTML=`<div class="kpi"><b>${S.length}</b><span>POs in register</span></div><div class="kpi"><b>${n("Purchase Order")}</b><span>PO documents</span></div><div class="kpi"><b>${n("Proforma Invoice")}</b><span>Proformas</span></div><div class="kpi"><b>${n("Invoice")}</b><span>Invoices</span></div>`}
+async function saveFile(name,data,mime){try{const d=window.claude&&await window.claude.use("downloads");if(d){await d.save({filename:name,data});return"Saved."}}catch(e){if(e&&e.code=="declined")return"Cancelled."}
+ const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([data],{type:mime}));a.download=name;document.body.appendChild(a);a.click();a.remove();return"Download started."}
+async function expXlsx(){const m=$("#expMsg");if(!window.XLSX){m.textContent="The spreadsheet library did not load. Check your connection.";return}
+ const R=repRows(),wb=XLSX.utils.book_new(),ws=XLSX.utils.aoa_to_sheet([["Type","Number","Party","Date","Reference","Status","Currency","Total"],...R.map(r=>[r.type,r.no,r.party,r.date,r.ref,r.st,r.cur,+r.tot.toFixed(2)])]);ws["!cols"]=[16,18,28,12,22,16,9,14].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,ws,"Tracking report");
+ const L=[["Type","Number","Party","Description","Qty","Unit price","Currency","Amount (before tax and discount)"]];R.forEach(r=>r.items.forEach(x=>L.push([r.type,r.no,r.party,x.d,+x.q||0,+x.p||0,r.cur,(+x.q||0)*(+x.p||0)])));
+ const w2=XLSX.utils.aoa_to_sheet(L);w2["!cols"]=[16,18,28,40,8,12,9,16].map(w=>({wch:w}));XLSX.utils.book_append_sheet(wb,w2,"Line items");
+ m.textContent=await saveFile("MTE-tracking-report-"+today()+".xlsx",XLSX.write(wb,{type:"array",bookType:"xlsx"}),"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet")}
+async function expPdf(){const m=$("#expMsg"),J=window.jspdf;if(!J||!J.jsPDF){m.textContent="The PDF library did not load. Check your connection.";return}
+ const R=repRows(),doc=new J.jsPDF({orientation:"landscape"});doc.setFontSize(15);doc.text("MTE Procurement Desk - Tracking report",14,14);doc.setFontSize(9);doc.text("Generated "+today()+" | "+R.length+" entries",14,20);
+ doc.autoTable({startY:25,head:[["Type","Number","Party","Date","Reference","Status","Currency","Total"]],body:R.map(r=>[r.type,r.no,r.party,r.date,r.ref,r.st,r.cur,m2(r.tot)]),styles:{fontSize:8},headStyles:{fillColor:[15,118,110]},columnStyles:{7:{halign:"right"}}});
+ m.textContent=await saveFile("MTE-tracking-report-"+today()+".pdf",doc.output("arraybuffer"),"application/pdf")}
 document.addEventListener("input",e=>{const t=e.target,id=t.id||"";
- if(t.dataset.k){LN[+t.dataset.i][t.dataset.k]=t.value;docPreview();return}
- if(id=="d_type"&&/^(PI|INV)-/.test($("#d_no").value))$("#d_no").value=dNo();
+ if(t.dataset.k){const P=t.dataset.g=="p";(P?PL:LN)[+t.dataset.i][t.dataset.k]=t.value;if(!P)docPreview();return}
+ if(id=="d_type"&&/^(PI|INV|POD)-/.test($("#d_no").value))$("#d_no").value=dNo();
  if(id.startsWith("d_"))docPreview();
- if(id.startsWith("s_")&&id!="s_raw"){if(id!="s_kw"&&id!="s_loc")$("#s_kw").value=[sv("prod"),sv("mat"),sv("dim"),sv("cert")].filter(Boolean).join(" ");srcLinks()}
- if(id=="r_em"||id=="r_sub"||id=="r_body")rfqMail()});
+ if(id.startsWith("x_"))xRender();
+ if(["rq","rt","rs","rp"].includes(id))renderRep()});
 docReset();
 resetForm();show(MODULES.some(m=>"#"+m.id==location.hash)?location.hash.slice(1):"dash");setInterval(tick,1000);
-</script></body></html>
+</script><script>if('serviceWorker' in navigator&&location.protocol!=='file:'){window.addEventListener('load',function(){navigator.serviceWorker.register('sw.js').catch(function(e){console.warn('SW failed',e)})})}</script>
+</body></html>
