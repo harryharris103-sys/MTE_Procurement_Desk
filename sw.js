@@ -1,5 +1,5 @@
 // Bump VERSION whenever you change any cached file, so users get the update.
-const VERSION = 'v2';
+const VERSION = 'v3';
 const CACHE = 'mte-procurement-' + VERSION;
 const ASSETS = ['./', './index.html', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png', './icon-maskable-512.png'];
 // Export libraries (XLSX, PDF). Cached on first online visit so exports also work offline.

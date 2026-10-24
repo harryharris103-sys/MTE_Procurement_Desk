@@ -11,7 +11,7 @@
 :root[data-theme="ocean"]{--bg:#e6f0fa;--card:#fff;--tx:#0b2540;--mut:#587390;--bd:#c9dbed;--ac:#1d63c8;--acs:#dbe9fb;--ok:#15803d;--warn:#b45309;--bad:#b91c1c;--hd:#0b2a52;--bt:#fff;color-scheme:light}
 :root[data-theme="midnight"]{--bg:#0e1424;--card:#151d33;--tx:#e4e9f5;--mut:#8d9ab8;--bd:#25304e;--ac:#7aa2ff;--acs:#1b2a52;--ok:#4ade80;--warn:#fbbf24;--bad:#f87171;--hd:#0a0f1d;color-scheme:dark}
 .paper{color-scheme:light}.paper th{color:#555}.paper td,.paper th{border-color:#ddd}
-@media print{body>header,.noprint{display:none!important}body{background:#fff}details.pane{border:0}}
+@media print{body>header,#sub,.noprint{display:none!important}body{background:#fff}details.pane{border:0}}
 *{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
 body{margin:0;background:var(--bg);color:var(--tx);font:14px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
 header{background:var(--hd);color:#fff;padding:12px 18px;display:flex;gap:16px;align-items:center;flex-wrap:wrap}
@@ -48,6 +48,7 @@ tr.det td{background:var(--bg)}.num{text-align:right;font-variant-numeric:tabula
 ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
 @media(max-width:760px){.two{grid-template-columns:1fr}nav{margin-left:0}}
 @media(prefers-reduced-motion:reduce){*{transition:none!important}}
+#sub{display:flex;gap:4px;flex-wrap:wrap;padding:6px 18px;background:var(--card);border-bottom:1px solid var(--bd)}#sub[hidden]{display:none}#sub button{background:none;border:0;color:var(--mut);padding:6px 12px;border-radius:6px;font:inherit;cursor:pointer}#sub button.on{background:var(--acs);color:var(--tx);font-weight:600}
 #ss .grid{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}#ss label{flex-direction:row;justify-content:space-between;align-items:center}
 #ss button,.sb{font:inherit;border:1px solid var(--bd);background:var(--card);color:var(--tx);border-radius:6px;padding:6px 11px;cursor:pointer}#ss button.p{background:var(--ac);border-color:var(--ac);color:var(--bt,#04201d)}
 #ss textarea{min-height:140px;resize:vertical}#ss p.s,.s{color:var(--mut);margin:0 0 10px}
@@ -60,9 +61,11 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script></head><body>
-<header><div><h1>MTE Procurement Desk</h1><div class="sub">Orders, suppliers and time zones · <span id="ver"></span></div></div><select id="theme" aria-label="Theme" style="width:auto"><option value="">Theme: Auto</option><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option><option value="ocean">Ocean</option><option value="midnight">Midnight</option></select><nav id="nav"></nav></header>
+<header><div><h1>MTE Procurement Desk</h1><div class="sub">Procurement, sales, inventory, finance and HR · <span id="ver"></span></div></div><select id="theme" aria-label="Theme" style="width:auto"><option value="">Theme: Auto</option><option value="light">Light</option><option value="dark">Dark</option><option value="amoled">AMOLED</option><option value="ocean">Ocean</option><option value="midnight">Midnight</option></select><nav id="nav"></nav></header>
+<div id="sub" hidden></div>
 <main>
 <section class="tab" id="t-dash">
+ <details class="pane" open><summary>Business overview</summary><div class="pb"><div class="kpis" id="bizK" style="margin:10px 0 0"></div></div></details>
  <div class="kpis" id="kpis"></div>
  <div class="two"><div>
   <details class="pane" open><summary>Needs attention<span class="r" id="attN"></span></summary><div class="pb" id="att"></div></details>
@@ -135,7 +138,7 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
  <div class="kpis" id="repK"></div>
  <details class="pane noprint" open><summary>Filters and export</summary><div class="pb"><div class="fg">
   <label>Search<input id="rq" placeholder="Number, party, reference…"></label>
-  <label>Type<select id="rt"><option value="">All types</option><option>PO register</option><option>Purchase Order</option><option>Proforma Invoice</option><option>Invoice</option></select></label>
+  <label>Type<select id="rt"><option value="">All types</option><option>PO register</option><option>Purchase Order</option><option>Proforma Invoice</option><option>Invoice</option><option>Sales order</option></select></label>
   <label>Status<select id="rs"></select></label>
   <label>Also show totals in<input id="rp" list="curs" placeholder="e.g. USD (uses saved rates)"></label></div>
   <div class="row"><button class="btn" onclick="expXlsx()">Export XLSX (editable)</button><button class="btn g" onclick="expPdf()">Export PDF</button><span class="mut" id="expMsg"></span></div></div></details>
@@ -152,6 +155,16 @@ ul.log{margin:6px 0;padding-left:18px}.two{display:grid;grid-template-columns:1f
   <div class="row"><button class="btn" onclick="fxAdd()">Save rate</button></div></div></details>
  <details class="pane" open><summary>Saved rates<span class="r" id="fxN"></span></summary><div class="pb" id="fxList"></div></details>
 </section>
+<section class="tab" id="t-sales"><div class="kpis" id="salesK"></div><div id="sales-boxes"></div></section>
+<section class="tab" id="t-inv"><div class="kpis" id="invK"></div><div id="inv-boxes"></div></section>
+<section class="tab" id="t-fin"><div class="kpis" id="finK"></div>
+<datalist id="cats"><option>Sales</option><option>Purchases</option><option>Payroll</option><option>Rent</option><option>Utilities</option><option>Transport</option><option>Tax</option><option>Bank charges</option><option>Other</option></datalist>
+<details class="pane" open><summary>Record a payment</summary><div class="pb"><div class="fg"><label>Type<select id="pay_kind" onchange="payOpts()"><option value="S">Customer payment (sales order)</option><option value="P">Supplier payment (purchase order)</option></select></label><label>Document<select id="pay_ref" onchange="payBal()"></select></label><label>Amount<input id="pay_amt" type="number" step="any"></label><label>Date<input id="pay_date" type="date"></label><label>Method<select id="pay_m"><option>Bank transfer</option><option>Cash</option><option>Mobile money</option><option>Cheque</option><option>Card</option></select></label></div><div class="row"><button class="btn" onclick="paySave()">Record payment</button><span class="mut" id="pay_msg"></span></div></div></details>
+<div id="fin-boxes"></div>
+<details class="pane"><summary>Receivables and payables</summary><div class="pb" id="finAP" style="padding-top:10px"></div></details>
+<details class="pane"><summary>Income and expenses by month</summary><div class="pb" id="finM"></div></details></section>
+<section class="tab" id="t-hr"><div class="kpis" id="hrK"></div><div id="hr-boxes"></div>
+<details class="pane"><summary>Payroll</summary><div class="pb"><div class="fg"><label>Month<input id="pr_m" type="month"></label></div><div class="tw"><table style="min-width:0;margin-top:10px"><tbody id="prB"></tbody></table></div><div class="row"><button class="btn" onclick="payRun()">Post payroll to ledger</button><span class="mut" id="pr_msg"></span></div></div></details></section>
 </main>
 <script>
 const $=s=>document.querySelector(s),esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
@@ -212,7 +225,7 @@ function renderPO(){const q=$("#q").value.toLowerCase(),fs=$("#fs").value,fv=$("
  const L=S.filter(p=>(!q||[p.no,p.sup,p.items.map(x=>x.d).join(" "),p.trk,p.car].join(" ").toLowerCase().includes(q))&&(!fs||p.st==fs)&&(fv!="open"||isOpen(p))&&(fv!="late"||late(p))).reverse();
  $("#poCount").textContent=L.length+" of "+S.length;
  $("#poBody").innerHTML=L.map(p=>{const z=tzOf(p.cc),x=late(p);let h=`<tr><td><button class="lnk" onclick="tg('${p.id}')">${p.no}</button></td><td>${flag(p.cc)} ${esc(p.sup)}<div class="mut">${esc(cn(p.cc))}</div></td><td>${esc(p.items[0].d)}<div class="mut">${p.items.length>1?"+"+(p.items.length-1)+" more item(s)":p.items[0].q+" × "+p.items[0].p}</div></td><td class="num">${money(val(p),p.cur)}</td><td>${p.eta||""}${x?` <span class="chip bad">${-dd(p.eta)}d late</span>`:""}</td><td><span class="chip ${p.st=="Delivered"||p.st=="Closed"?"ok":x?"bad":""}">${p.st}</span></td><td>${z?`<span data-st="${z}"></span>`:""}</td><td><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></td></tr>`;
-  if(openId==p.id)h+=`<tr class="det"><td colspan="8"><div class="two"><div><b>Items</b><ul class="log">${p.items.map(x=>`<li>${esc(x.d)} <span class="mut">${x.q} × ${x.p}</span></li>`).join("")}</ul><b>Tracking</b><div class="mut">${esc(p.car)||"No carrier"} · ${esc(p.trk)||"no tracking number"}</div><ul class="log">${p.log.map(e=>`<li><span class="mut">${e.d}</span> ${esc(e.t)}</li>`).join("")}</ul>${p.nt?`<div class="mut">Notes: ${esc(p.nt)}</div>`:""}</div><div><label>Update status<select onchange="setSt('${p.id}',this.value)">${STATUS.map(s=>`<option ${s==p.st?"selected":""}>${s}</option>`).join("")}</select></label><label style="margin-top:8px">Add tracking update<input id="ev_${p.id}" placeholder="e.g. Departed Shenzhen port" onkeydown="if(event.key=='Enter')addEv('${p.id}')"></label><div class="row"><button class="btn s" onclick="addEv('${p.id}')">Add update</button><button class="btn g s" onclick="docFromPO('${p.id}','Purchase Order')">Make PO document</button><button class="btn g s" onclick="docFromPO('${p.id}')">Make proforma</button><button class="btn g s" onclick="edit('${p.id}')">Edit PO</button><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></div></div></div></td></tr>`;return h}).join("")||'<tr><td colspan="8" class="mut">No orders match. Open “New purchase order” to add one.</td></tr>';tick()}
+  if(openId==p.id)h+=`<tr class="det"><td colspan="8"><div class="two"><div><b>Items</b><ul class="log">${p.items.map(x=>`<li>${esc(x.d)} <span class="mut">${x.q} × ${x.p}</span></li>`).join("")}</ul><b>Tracking</b><div class="mut">${esc(p.car)||"No carrier"} · ${esc(p.trk)||"no tracking number"}</div><ul class="log">${p.log.map(e=>`<li><span class="mut">${e.d}</span> ${esc(e.t)}</li>`).join("")}</ul>${p.nt?`<div class="mut">Notes: ${esc(p.nt)}</div>`:""}</div><div><label>Update status<select onchange="setSt('${p.id}',this.value)">${STATUS.map(s=>`<option ${s==p.st?"selected":""}>${s}</option>`).join("")}</select></label><label style="margin-top:8px">Add tracking update<input id="ev_${p.id}" placeholder="e.g. Departed Shenzhen port" onkeydown="if(event.key=='Enter')addEv('${p.id}')"></label><div class="row"><button class="btn s" onclick="addEv('${p.id}')">Add update</button><button class="btn g s" onclick="poReceive('${p.id}')">${p.received?'Received to stock ✓':'Receive into stock'}</button><button class="btn g s" onclick="docFromPO('${p.id}','Purchase Order')">Make PO document</button><button class="btn g s" onclick="docFromPO('${p.id}')">Make proforma</button><button class="btn g s" onclick="edit('${p.id}')">Edit PO</button><button class="btn g s d" onclick="del('${p.id}')">${armed=='p'+p.id?'Confirm delete':'Delete'}</button></div></div></div></td></tr>`;return h}).join("")||'<tr><td colspan="8" class="mut">No orders match. Open “New purchase order” to add one.</td></tr>';tick()}
 const tg=id=>{openId=openId==id?null:id;renderPO()};
 function gotoPO(id){openId=id;show("po")}
 function setSt(id,s){const p=S.find(x=>x.id==id);if(p.st!=s){p.st=s;p.log.push({d:today(),t:"Status changed to "+s});save();renderPO();renderDash()}}
@@ -232,11 +245,13 @@ $("#fs").innerHTML='<option value="">All statuses</option>'+STATUS.map(s=>`<opti
 ["q","fs","fv"].forEach(i=>$("#"+i).oninput=renderPO);$("#cq").oninput=renderClock;
 
 /* Module registry: add a new feature by appending one entry here plus a <section class="tab" id="t-ID"> */
-const MODULES=[{id:"dash",label:"Dashboard",render:renderDash},{id:"po",label:"Purchase orders",render:renderPO},{id:"src",label:"Sourcing",render:rfqList},{id:"doc",label:"Documents",render:renderDocs},{id:"rep",label:"Reports",render:renderRep},{id:"fx",label:"Exchange rates",render:renderFx},{id:"clock",label:"World clock",render:renderClock}];
-$("#nav").innerHTML=MODULES.map(m=>`<button data-m="${m.id}" onclick="show('${m.id}')">${m.label}</button>`).join("");
-function show(id){MODULES.forEach(m=>{$("#t-"+m.id).classList.toggle("on",m.id==id);document.querySelector(`[data-m="${m.id}"]`).classList.toggle("on",m.id==id)});MODULES.find(m=>m.id==id).render();renderClock&&id!="clock"&&id=="dash"&&renderClock();tick();try{history.replaceState(null,"","#"+id)}catch(e){}window.scrollTo(0,0)}
-const arm=k=>{if(armed===k){armed=null;return true}armed=k;setTimeout(()=>{if(armed===k){armed=null;renderPO();renderDocs();rfqList();renderFx()}},4000);return false};
-const VERSION="0.3.1",CHG=[["0.3.1","Backup and restore of all data"],["0.3.0","Purchase order documents, multi-item POs, tracking report with XLSX and PDF export, exchange rates with local bank rates, enhanced sourcing"],["0.2.0","Themes, 12-hour clocks, sourcing and RFQ drafts, proforma invoices and invoices, any currency, per-row delete"],["0.1.0","Purchase orders, dashboard, world clock"]];
+const MODULES=[{id:"dash",label:"Dashboard",render:()=>{renderDash();renderBiz()}},{id:"po",label:"Purchase orders",render:renderPO},{id:"src",label:"Sourcing",render:rfqList},{id:"doc",label:"Documents",render:renderDocs},{id:"rep",label:"Reports",render:renderRep},{id:"fx",label:"Exchange rates",render:renderFx},{id:"sales",label:"Sales",render:renderSales},{id:"inv",label:"Inventory",render:renderInv},{id:"fin",label:"Finance",render:renderFin},{id:"hr",label:"HR",render:renderHR},{id:"clock",label:"World clock",render:renderClock}];
+function show(id){const g=grpOf(id);MODULES.forEach(m=>$("#t-"+m.id).classList.toggle("on",m.id==id));
+ $("#nav").innerHTML=GROUPS.map(x=>`<button class="${x==g?"on":""}" onclick="show('${x[1][0]}')">${x[0]}</button>`).join("");
+ $("#sub").innerHTML=g[1].length>1?g[1].map(i=>`<button class="${i==id?"on":""}" onclick="show('${i}')">${MODULES.find(m=>m.id==i).label}</button>`).join(""):"";$("#sub").hidden=g[1].length<2;
+ MODULES.find(m=>m.id==id).render();if(id=="dash")renderClock();tick();try{history.replaceState(null,"","#"+id)}catch(e){}window.scrollTo(0,0)}
+const arm=k=>{if(armed===k){armed=null;return true}armed=k;setTimeout(()=>{if(armed===k){armed=null;renderPO();renderDocs();rfqList();renderFx();refreshCur()}},4000);return false};
+const VERSION="0.4.0",CHG=[["0.4.0","Sales, inventory, finance and HR modules, grouped navigation, database-ready data layer"],["0.3.1","Backup and restore of all data"],["0.3.0","Purchase order documents, multi-item POs, tracking report with XLSX and PDF export, exchange rates with local bank rates, enhanced sourcing"],["0.2.0","Themes, 12-hour clocks, sourcing and RFQ drafts, proforma invoices and invoices, any currency, per-row delete"],["0.1.0","Purchase orders, dashboard, world clock"]];
 $("#ver").textContent="v"+VERSION;$("#chg").innerHTML=CHG.map(c=>`<div class="bar"><b>v${c[0]}</b><span style="width:auto">${c[1]}</span></div>`).join("");
 const th=$("#theme"),applyTh=()=>{const v=th.value;if(v)document.documentElement.dataset.theme=v;else delete document.documentElement.dataset.theme;store.set("pd_theme",v)};th.value=store.get("pd_theme","");th.onchange=applyTh;applyTh();
 $("#hfmt").value=H12?"12":"24";$("#hfmt").onchange=()=>{H12=$("#hfmt").value=="12";store.set("pd_12",H12);renderClock();renderPO();renderDash()};
@@ -494,7 +509,7 @@ const lineUI=(A,g)=>{const s='style="grid-template-columns:3fr 1fr 1fr auto;padd
 function lines(){$("#d_items").innerHTML=lineUI(LN,"d")}
 function plines(){$("#f_items").innerHTML=lineUI(PL,"p")}
 function pAdd(){PL.push({d:"",q:1,p:0});plines()}
-function rmL(g,i){const A=g=="p"?PL:LN;A.splice(i,1);if(!A.length)A.push({d:"",q:1,p:0});if(g=="p")plines();else{lines();docPreview()}}
+function rmL(g,i){const A=g=="p"?PL:g=="s"?SL:LN;A.splice(i,1);if(!A.length)A.push({d:"",q:1,p:0,itemId:""});if(g=="p")plines();else if(g=="s")slr();else{lines();docPreview()}}
 function toPO(A){if(PL.length==1&&!PL[0].d.trim())PL=[];A.forEach(x=>PL.push({...x}));plines();$("#formPane").open=true;show("po");$("#formPane").scrollIntoView()}
 /* Exchange rates */
 let FX=store.get("pd_fx",[]);
@@ -512,9 +527,10 @@ function renderFx(){$("#fxN").textContent=FX.length+" saved";$("#fxList").innerH
 const DST=["Draft","Issued","Paid / accepted","Cancelled"];
 function repRows(){const r=[];S.forEach(p=>r.push({type:"PO register",no:p.no,party:p.sup,date:p.od,ref:p.trk?"Tracking "+p.trk:"",st:p.st,cur:p.cur,tot:val(p),items:p.items}));
  DOCS.forEach(d=>r.push({type:d.type,no:d.no,party:d.bn,date:d.date,ref:d.ref,st:d.st||"Draft",cur:d.cur,tot:docTot(d).tot,items:d.L}));
+ SO.all().forEach(o=>r.push({type:"Sales order",no:o.no,party:cuName(o.customerId),date:o.date,ref:"",st:o.status,cur:o.cur,tot:soTot(o),items:o.lines}));
  const q=$("#rq").value.toLowerCase(),t=$("#rt").value,s=$("#rs").value;
  return r.filter(x=>(!q||[x.no,x.party,x.ref].join(" ").toLowerCase().includes(q))&&(!t||x.type==t)&&(!s||x.st==s)).sort((a,b)=>(b.date||"").localeCompare(a.date||""))}
-function renderRep(){const sel=$("#rs");if(!sel.options.length)sel.innerHTML='<option value="">All statuses</option>'+[...new Set([...STATUS,...DST])].map(s=>`<option>${s}</option>`).join("");
+function renderRep(){const sel=$("#rs");if(!sel.options.length)sel.innerHTML='<option value="">All statuses</option>'+[...new Set([...STATUS,...DST,...SOST])].map(s=>`<option>${s}</option>`).join("");
  const R=repRows(),tc=$("#rp").value.trim().toUpperCase();$("#repN").textContent=R.length+" entries";$("#convH").textContent=tc?"In "+tc:"";
  const cv=r=>{if(!tc)return"";if(r.cur==tc)return m2(r.tot);const x=fxFind(r.cur,tc,"");return x?m2(r.tot*(x.buy+x.sell)/2):"no rate"};
  $("#repB").innerHTML=R.map(r=>`<tr><td>${esc(r.type)}</td><td>${esc(r.no)}</td><td>${esc(r.party)}</td><td>${esc(r.date)}</td><td>${esc(r.ref)}</td><td><span class="chip">${esc(r.st)}</span></td><td class="num">${m2(r.tot,esc(r.cur))}</td><td class="num">${cv(r)}</td></tr>`).join("")||'<tr><td colspan="8" class="mut">Nothing yet. POs, proformas and invoices appear here automatically.</td></tr>';
@@ -532,16 +548,127 @@ async function expPdf(){const m=$("#expMsg"),J=window.jspdf;if(!J||!J.jsPDF){m.t
  const R=repRows(),doc=new J.jsPDF({orientation:"landscape"});doc.setFontSize(15);doc.text("MTE Procurement Desk - Tracking report",14,14);doc.setFontSize(9);doc.text("Generated "+today()+" | "+R.length+" entries",14,20);
  doc.autoTable({startY:25,head:[["Type","Number","Party","Date","Reference","Status","Currency","Total"]],body:R.map(r=>[r.type,r.no,r.party,r.date,r.ref,r.st,r.cur,m2(r.tot)]),styles:{fontSize:8},headStyles:{fillColor:[15,118,110]},columnStyles:{7:{halign:"right"}}});
  m.textContent=await saveFile("MTE-tracking-report-"+today()+".pdf",doc.output("arraybuffer"),"application/pdf")}
+/* ===== Data layer =====
+   Tables (all rows have a string id; relations use ids, so each maps 1:1 to a SQL table later):
+   items, moves(itemId), customers, sales(customerId, lines[]), ledger(refId -> sales/PO id), employees, leave(empId).
+   When the database arrives, replace Adapter with a REST/SQL client (make Repo methods async) and nothing else changes. */
+const Adapter={load:(k,d)=>store.get("erp_"+k,d),save:(k,v)=>store.set("erp_"+k,v)};
+const uid=p=>p+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+function Repo(n){let rows=Adapter.load(n,[]);return{all:()=>rows,get:id=>rows.find(r=>r.id==id),
+ put(r){if(!r.id){r.id=uid(n[0]);rows.push(r)}else{const i=rows.findIndex(x=>x.id==r.id);i<0?rows.push(r):rows[i]=r}Adapter.save(n,rows);return r},
+ del(id){rows=rows.filter(r=>r.id!=id);Adapter.save(n,rows)},replace(a){rows=a;Adapter.save(n,rows)}}}
+const IT=Repo("items"),MV=Repo("moves"),CU=Repo("customers"),SO=Repo("sales"),LG=Repo("ledger"),EM=Repo("employees"),LV=Repo("leave"),REPOS={items:IT,moves:MV,customers:CU,sales:SO,ledger:LG,employees:EM,leave:LV};
+const GROUPS=[["Home",["dash"]],["Procurement",["po","src","doc","rep"]],["Sales",["sales"]],["Inventory",["inv"]],["Finance",["fin"]],["People",["hr"]],["Tools",["fx","clock"]]],grpOf=id=>GROUPS.find(g=>g[1].includes(id));
+const SOST=["Draft","Confirmed","Delivered","Paid","Cancelled"],OP=o=>Array.isArray(o)?o:[o,o];
+const onHand=id=>MV.all().filter(m=>m.itemId==id).reduce((s,m)=>s+(+m.qty||0),0);
+const itName=id=>(IT.get(id)||{}).name||"(deleted item)",cuName=id=>(CU.get(id)||{}).name||"";
+const soTot=o=>o.lines.reduce((s,x)=>s+(+x.q||0)*(+x.p||0),0)*(1+(+o.tax||0)/100);
+const paidFor=(refId,type)=>LG.all().filter(l=>l.refId==refId&&l.type==type).reduce((s,l)=>s+(+l.amt||0),0);
+const byCur=(A,cf,vf)=>{const o={};A.forEach(x=>o[cf(x)]=(o[cf(x)]||0)+vf(x));return o};
+const curStr=o=>Object.keys(o).filter(c=>Math.abs(o[c])>0.004).map(c=>m2(o[c],c)).join(" · ")||"–";
+const kpi=(b,l,c)=>`<div class="kpi ${c||""}"><b style="font-size:${String(b).length>16?15:24}px">${b}</b><span>${l}</span></div>`;
+const days=r=>Math.max(1,Math.round((new Date(r.to)-new Date(r.from))/864e5)+1);
+let SL=[];
+function refreshCur(){const t=document.querySelector("section.tab.on");if(t)MODULES.find(m=>"t-"+m.id==t.id).render()}
+/* ===== Generic entity engine: define a schema, get form + list + edit + delete ===== */
+const ENT={};
+function ent(n,s){ENT[n]={...s,repo:{sales:SO,items:IT,moves:MV,customers:CU,ledger:LG,employees:EM,leave:LV}[n],edit:null}}
+const fe=(n,k)=>document.querySelector(`[data-e="${n}"][data-f="${k}"]`),dv=f=>typeof f.def=="function"?f.def():(f.def??"");
+function entBox(n){const s=ENT[n];return`<details class="pane" id="p-${n}"${s.open?" open":""}><summary id="h-${n}">New ${s.one}</summary><div class="pb"><div id="f-${n}"></div>${s.lines?`<div id="ln-${n}" style="margin-top:10px"></div><div class="row"><select id="pk-${n}" style="width:auto;max-width:280px"></select><button class="btn g s" type="button" onclick="slPick()">Add from inventory</button><button class="btn g s" type="button" onclick="slAdd()">Add blank line</button></div>`:""}<div class="row"><button class="btn" onclick="entSave('${n}')">Save</button><button class="btn g" onclick="entReset('${n}')">Clear</button></div></div></details>
+<details class="pane" open><summary>${s.title}<span class="r" id="c-${n}"></span></summary><div class="pb"><label style="margin-top:10px;max-width:320px">Search<input id="q-${n}" oninput="entList('${n}')"></label><div class="tw"><table style="min-width:0;margin-top:8px"><thead><tr>${s.cols.map(c=>`<th class="${c[2]||""}">${c[0]}</th>`).join("")}<th></th></tr></thead><tbody id="l-${n}"></tbody></table></div></div></details>`}
+function entForm(n){const s=ENT[n],vals={};document.querySelectorAll(`[data-e="${n}"]`).forEach(i=>vals[i.dataset.f]=i.value);
+ $("#f-"+n).innerHTML=`<div class="fg">${s.fields.map(f=>{const a=`data-e="${n}" data-f="${f.k}"`;return`<label>${f.label}${f.type=="select"?`<select ${a}>${(typeof f.opts=="function"?f.opts():f.opts).map(OP).map(o=>`<option value="${esc(o[0])}">${esc(o[1])}</option>`).join("")}</select>`:`<input ${a} type="${f.type||"text"}"${f.type=="number"?' step="any"':""}${f.list?` list="${f.list}"`:""}>`}</label>`}).join("")}</div>`;
+ s.fields.forEach(f=>{fe(n,f.k).value=vals[f.k]!==undefined?vals[f.k]:dv(f)});if(n=="sales")slr()}
+function entList(n){const s=ENT[n],q=($("#q-"+n).value||"").toLowerCase();let R=s.repo.all().filter(r=>!q||(Object.values(r).join(" ")+" "+(s.hay?s.hay(r):"")).toLowerCase().includes(q));if(s.sort)R=[...R].sort(s.sort);
+ $("#c-"+n).textContent=R.length+" of "+s.repo.all().length;
+ $("#l-"+n).innerHTML=R.map(r=>`<tr>${s.cols.map(c=>`<td class="${c[2]||""}">${c[1](r)}</td>`).join("")}<td style="white-space:nowrap">${s.act?s.act(r):""}<button class="btn g s" onclick="entEdit('${n}','${r.id}')">Edit</button> <button class="btn g s d" onclick="entDel('${n}','${r.id}')">${armed==n+r.id?"Confirm delete":"Delete"}</button></td></tr>`).join("")||`<tr><td colspan="${s.cols.length+1}" class="mut">Nothing here yet.</td></tr>`}
+const entRender=n=>{entForm(n);entList(n)};
+function entSave(n){const s=ENT[n],r={};for(const f of s.fields){let v=fe(n,f.k).value.trim();if(f.type=="number")v=v===""?0:+v;r[f.k]=v}
+ const miss=s.fields.find(f=>f.req&&(f.type=="number"?!(r[f.k]>0):!r[f.k]));if(miss){fe(n,miss.k).focus();return}
+ const rec=Object.assign(s.edit?{...s.repo.get(s.edit)}:{},r);if(s.pre&&s.pre(rec)===false)return;s.repo.put(rec);entReset(n);refreshCur()}
+function entReset(n){const s=ENT[n];s.edit=null;s.fields.forEach(f=>fe(n,f.k).value=dv(f));$("#h-"+n).textContent="New "+s.one;if(s.onReset)s.onReset()}
+function entEdit(n,id){const s=ENT[n],r=s.repo.get(id);s.edit=id;s.fields.forEach(f=>fe(n,f.k).value=r[f.k]??"");$("#h-"+n).textContent="Edit "+s.one;if(s.onEdit)s.onEdit(r);$("#p-"+n).open=true;$("#p-"+n).scrollIntoView()}
+function entDel(n,id){if(!arm(n+id)){refreshCur();return}ENT[n].repo.del(id);refreshCur()}
+/* ===== Entity schemas ===== */
+const nextNo=(pre,R)=>pre+"-"+new Date().getFullYear()+"-"+String(R.all().length+1).padStart(4,"0"),seqNo=(pre,R)=>pre+"-"+String(R.all().length+1).padStart(pre=="EMP"?3:4,"0");
+ent("items",{one:"item",title:"Inventory items",
+ fields:[{k:"sku",label:"SKU / code",req:1,def:()=>seqNo("SKU",IT)},{k:"name",label:"Item name",req:1},{k:"cat",label:"Category"},{k:"unit",label:"Unit",def:"pcs"},{k:"cost",label:"Cost price",type:"number",def:0},{k:"price",label:"Selling price",type:"number",def:0},{k:"cur",label:"Currency",list:"curs",def:"USD"},{k:"reorder",label:"Reorder level",type:"number",def:0},{k:"loc",label:"Location / bin"}],
+ pre:r=>{r.cur=(r.cur||"USD").toUpperCase()},
+ cols:[["SKU",r=>esc(r.sku)],["Item",r=>esc(r.name)+`<div class="mut">${esc(r.cat)}</div>`],["On hand",r=>onHand(r.id)+" "+esc(r.unit),"num"],["Cost",r=>m2(r.cost,esc(r.cur)),"num"],["Price",r=>m2(r.price,esc(r.cur)),"num"],["Stock",r=>onHand(r.id)<=r.reorder?'<span class="chip bad">Low</span>':'<span class="chip ok">OK</span>']],sort:(a,b)=>a.name.localeCompare(b.name)});
+ent("moves",{one:"stock movement",title:"Stock movements",
+ fields:[{k:"date",label:"Date",type:"date",def:today},{k:"itemId",label:"Item",type:"select",req:1,opts:()=>IT.all().map(i=>[i.id,i.sku+" · "+i.name])},{k:"type",label:"Type",type:"select",opts:["In","Out","Adjust"]},{k:"qty",label:"Quantity (Adjust: use − to reduce)",type:"number",def:1},{k:"ref",label:"Reference"},{k:"note",label:"Note"}],
+ pre:r=>{const q=+r.qty||0;r.qty=r.type=="In"?Math.abs(q):r.type=="Out"?-Math.abs(q):q},
+ cols:[["Date",r=>esc(r.date)],["Item",r=>esc(itName(r.itemId))],["Type",r=>esc(r.type)],["Qty",r=>r.qty,"num"],["Reference",r=>esc(r.ref)],["Note",r=>esc(r.note)]],sort:(a,b)=>(b.date||"").localeCompare(a.date||"")});
+ent("customers",{one:"customer",title:"Customers",
+ fields:[{k:"name",label:"Customer name",req:1},{k:"contact",label:"Contact person"},{k:"email",label:"Email",type:"email"},{k:"phone",label:"Phone"},{k:"country",label:"Country"},{k:"addr",label:"Address"}],
+ cols:[["Customer",r=>esc(r.name)],["Contact",r=>esc(r.contact)+`<div class="mut">${esc(r.email)} ${esc(r.phone)}</div>`],["Country",r=>esc(r.country)],["Orders",r=>SO.all().filter(o=>o.customerId==r.id).length,"num"],["Billed",r=>curStr(byCur(SO.all().filter(o=>o.customerId==r.id&&o.status!="Cancelled"),o=>o.cur,soTot)),"num"]],sort:(a,b)=>a.name.localeCompare(b.name)});
+ent("sales",{one:"sales order",title:"Sales orders",open:true,lines:true,
+ fields:[{k:"no",label:"Order no.",req:1,def:()=>nextNo("SO",SO)},{k:"date",label:"Date",type:"date",def:today},{k:"customerId",label:"Customer",type:"select",opts:()=>[["","— select —"],...CU.all().map(c=>[c.id,c.name])]},{k:"status",label:"Status",type:"select",opts:SOST,def:"Draft"},{k:"cur",label:"Currency",list:"curs",def:"USD"},{k:"tax",label:"Tax %",type:"number",def:0},{k:"nt",label:"Notes"}],
+ pre:r=>{r.lines=SL.filter(x=>x.d.trim()).map(x=>({d:x.d.trim(),q:+x.q||0,p:+x.p||0,itemId:x.itemId||""}));if(!r.lines.length){const i=document.querySelector("#ln-sales input");if(i)i.focus();return false}r.cur=(r.cur||"USD").toUpperCase()},
+ onReset:()=>{SL=[{d:"",q:1,p:0,itemId:""}];slr()},onEdit:r=>{SL=r.lines.map(x=>({...x}));slr()},hay:r=>cuName(r.customerId),
+ cols:[["Order",r=>esc(r.no)],["Date",r=>esc(r.date)],["Customer",r=>esc(cuName(r.customerId))],["Status",r=>`<span class="chip ${r.status=="Paid"?"ok":""}">${esc(r.status)}</span>${r.delivered&&r.status!="Delivered"?' <span class="chip">stock out</span>':""}`],["Total",r=>m2(soTot(r),esc(r.cur)),"num"],["Paid",r=>m2(paidFor(r.id,"Income")),"num"],["Balance",r=>m2(soTot(r)-paidFor(r.id,"Income")),"num"]],
+ act:r=>`${r.delivered?"":`<button class="btn g s" onclick="soDeliver('${r.id}')">Deliver</button> `}<button class="btn g s" onclick="payFor('S','${r.id}')">Payment</button> <button class="btn g s" onclick="soInvoice('${r.id}')">Invoice</button> `,sort:(a,b)=>(b.date||"").localeCompare(a.date||"")});
+ent("ledger",{one:"transaction",title:"Ledger",
+ fields:[{k:"date",label:"Date",type:"date",def:today},{k:"type",label:"Type",type:"select",opts:["Income","Expense"]},{k:"cat",label:"Category",list:"cats",def:"Other"},{k:"desc",label:"Description",req:1},{k:"amt",label:"Amount",type:"number",req:1},{k:"cur",label:"Currency",list:"curs",def:"USD"},{k:"ref",label:"Reference"}],
+ pre:r=>{r.amt=Math.abs(+r.amt||0);r.cur=(r.cur||"USD").toUpperCase()},
+ cols:[["Date",r=>esc(r.date)],["Type",r=>`<span class="chip ${r.type=="Income"?"ok":"warn"}">${r.type}</span>`],["Category",r=>esc(r.cat)],["Description",r=>esc(r.desc)],["Ref",r=>esc(r.ref)],["Amount",r=>m2(r.amt,esc(r.cur)),"num"]],sort:(a,b)=>(b.date||"").localeCompare(a.date||"")});
+ent("employees",{one:"employee",title:"Employees",
+ fields:[{k:"code",label:"Staff ID",def:()=>seqNo("EMP",EM)},{k:"name",label:"Full name",req:1},{k:"role",label:"Job title"},{k:"dept",label:"Department"},{k:"hired",label:"Hire date",type:"date"},{k:"salary",label:"Monthly salary",type:"number",def:0},{k:"cur",label:"Currency",list:"curs",def:"USD"},{k:"status",label:"Status",type:"select",opts:["Active","On leave","Terminated"]},{k:"email",label:"Email",type:"email"},{k:"phone",label:"Phone"}],
+ pre:r=>{r.cur=(r.cur||"USD").toUpperCase()},
+ cols:[["ID",r=>esc(r.code)],["Name",r=>esc(r.name)+`<div class="mut">${esc(r.role)} · ${esc(r.dept)}</div>`],["Hired",r=>esc(r.hired)],["Salary",r=>m2(r.salary,esc(r.cur)),"num"],["Status",r=>`<span class="chip ${r.status=="Active"?"ok":""}">${esc(r.status)}</span>`]],sort:(a,b)=>a.name.localeCompare(b.name)});
+ent("leave",{one:"leave request",title:"Leave requests",
+ fields:[{k:"empId",label:"Employee",type:"select",req:1,opts:()=>EM.all().map(e=>[e.id,e.name])},{k:"type",label:"Type",type:"select",opts:["Annual","Sick","Maternity / paternity","Unpaid","Other"]},{k:"from",label:"From",type:"date",def:today,req:1},{k:"to",label:"To",type:"date",def:today,req:1},{k:"status",label:"Status",type:"select",opts:["Pending","Approved","Rejected"]},{k:"note",label:"Note"}],
+ cols:[["Employee",r=>esc((EM.get(r.empId)||{}).name||"")],["Type",r=>esc(r.type)],["From",r=>esc(r.from)],["To",r=>esc(r.to)],["Days",r=>days(r),"num"],["Status",r=>`<span class="chip ${r.status=="Approved"?"ok":r.status=="Rejected"?"bad":"warn"}">${r.status}</span>`]],sort:(a,b)=>(b.from||"").localeCompare(a.from||"")});
+/* ===== Sales helpers ===== */
+function slr(){const e=$("#ln-sales");if(!e)return;e.innerHTML=lineUI(SL,"s");$("#pk-sales").innerHTML=IT.all().map(i=>`<option value="${i.id}">${esc(i.sku+" · "+i.name)}</option>`).join("")||"<option value=''>No inventory items yet</option>"}
+function slAdd(){SL.push({d:"",q:1,p:0,itemId:""});slr()}
+function slPick(){const it=IT.get($("#pk-sales").value);if(!it)return;if(SL.length==1&&!SL[0].d.trim())SL=[];SL.push({d:it.name,q:1,p:it.price,itemId:it.id});slr()}
+function soDeliver(id){const o=SO.get(id);if(o.delivered)return;o.lines.forEach(x=>{if(x.itemId&&IT.get(x.itemId))MV.put({date:today(),itemId:x.itemId,type:"Out",qty:-Math.abs(+x.q||0),ref:o.no,note:"Sales delivery"})});o.delivered=true;if(o.status=="Draft"||o.status=="Confirmed")o.status="Delivered";SO.put(o);refreshCur()}
+function soInvoice(id){const o=SO.get(id),c=CU.get(o.customerId)||{};docReset();$("#d_type").value="Invoice";docFill({...docRead(),type:"Invoice",no:dNo(),ref:o.no,cur:o.cur,tax:o.tax,bn:c.name||"",ba:c.addr||"",L:o.lines.map(x=>({d:x.d,q:x.q,p:x.p}))});show("doc")}
+/* ===== Finance helpers ===== */
+function payDocs(k){return k=="S"?SO.all().filter(o=>o.status!="Cancelled"&&soTot(o)-paidFor(o.id,"Income")>0.005).map(o=>({id:o.id,no:o.no,who:cuName(o.customerId),cur:o.cur,bal:soTot(o)-paidFor(o.id,"Income")})):S.filter(p=>p.st!="Cancelled"&&val(p)-paidFor(p.id,"Expense")>0.005).map(p=>({id:p.id,no:p.no,who:p.sup,cur:p.cur,bal:val(p)-paidFor(p.id,"Expense")}))}
+function payOpts(keep){const d=payDocs($("#pay_kind").value),cur=$("#pay_ref").value;$("#pay_ref").innerHTML=d.map(x=>`<option value="${x.id}">${esc(x.no)} · ${esc(x.who)} · balance ${m2(x.bal,esc(x.cur))}</option>`).join("")||'<option value="">Nothing outstanding</option>';if(d.some(x=>x.id==cur))$("#pay_ref").value=cur;if(!keep||$("#pay_amt").value==="")payBal()}
+function payBal(){const d=payDocs($("#pay_kind").value).find(x=>x.id==$("#pay_ref").value);$("#pay_amt").value=d?+d.bal.toFixed(2):""}
+function paySave(){const k=$("#pay_kind").value,d=payDocs(k).find(x=>x.id==$("#pay_ref").value),a=+$("#pay_amt").value;if(!d||!(a>0))return;
+ LG.put({date:$("#pay_date").value||today(),type:k=="S"?"Income":"Expense",cat:k=="S"?"Sales":"Purchases",desc:(k=="S"?"Payment received · ":"Payment made · ")+d.no+" · "+$("#pay_m").value,amt:a,cur:d.cur,ref:d.no,refId:d.id});
+ if(k=="S"){const o=SO.get(d.id);if(soTot(o)-paidFor(o.id,"Income")<0.005){o.status="Paid";SO.put(o)}}else{const p=S.find(x=>x.id==d.id);p.log.push({d:today(),t:"Payment "+m2(a,p.cur)+" recorded"});save()}
+ $("#pay_msg").textContent="Payment recorded.";refreshCur()}
+function payFor(k,id){show("fin");$("#pay_kind").value=k;payOpts();$("#pay_ref").value=id;payBal()}
+/* ===== Inventory / PO link ===== */
+function poReceive(id){const p=S.find(x=>x.id==id);if(p.received)return;p.items.forEach(x=>{const k=x.d.toLowerCase();let it=IT.all().find(i=>i.name.toLowerCase()==k||i.sku.toLowerCase()==k);if(!it)it=IT.put({sku:seqNo("SKU",IT),name:x.d,cat:"",unit:"pcs",cost:+x.p||0,price:0,cur:p.cur,reorder:0,loc:""});MV.put({date:today(),itemId:it.id,type:"In",qty:Math.abs(+x.q||0),ref:p.no,note:"PO receipt"})});p.received=true;p.log.push({d:today(),t:"Received into stock"});save();renderPO()}
+/* ===== HR helpers ===== */
+function payRun(){const m=$("#pr_m").value,E=EM.all().filter(e=>e.status=="Active"&&e.salary>0);let n=0;E.forEach(e=>{const ref="PAY:"+m+":"+e.id;if(LG.all().some(l=>l.ref==ref))return;LG.put({date:m+"-28",type:"Expense",cat:"Payroll",desc:"Salary · "+e.name+" · "+m,amt:e.salary,cur:e.cur,ref,refId:e.id});n++});$("#pr_msg").textContent=n?n+" payroll entries posted.":"Nothing new to post for "+m+".";refreshCur()}
+/* ===== Module renderers ===== */
+function renderBiz(){const inv=IT.all(),low=inv.filter(i=>onHand(i.id)<=i.reorder).length,L=LG.all(),inc=byCur(L.filter(l=>l.type=="Income"),l=>l.cur,l=>l.amt),exp=byCur(L.filter(l=>l.type=="Expense"),l=>l.cur,l=>l.amt),net={};
+ [...Object.keys(inc),...Object.keys(exp)].forEach(c=>net[c]=(inc[c]||0)-(exp[c]||0));
+ $("#bizK").innerHTML=kpi(inv.length,"Inventory items")+kpi(curStr(byCur(inv,i=>i.cur,i=>onHand(i.id)*i.cost)),"Stock value (at cost)")+kpi(low,"Low-stock items",low?"warn":"")+kpi(curStr(byCur(payDocs("S"),x=>x.cur,x=>x.bal)),"Receivable")+kpi(curStr(byCur(payDocs("P"),x=>x.cur,x=>x.bal)),"Payable")+kpi(curStr(net),"Net cash flow")+kpi(EM.all().filter(e=>e.status=="Active").length,"Active staff")}
+function renderInv(){const inv=IT.all(),low=inv.filter(i=>onHand(i.id)<=i.reorder).length;
+ $("#invK").innerHTML=kpi(inv.length,"Items")+kpi(inv.reduce((s,i)=>s+onHand(i.id),0),"Units on hand")+kpi(curStr(byCur(inv,i=>i.cur,i=>onHand(i.id)*i.cost)),"Stock value (at cost)")+kpi(low,"Low-stock items",low?"warn":"");entRender("items");entRender("moves")}
+function renderSales(){const O=SO.all(),live=O.filter(o=>o.status!="Cancelled");
+ $("#salesK").innerHTML=kpi(CU.all().length,"Customers")+kpi(O.filter(o=>o.status!="Paid"&&o.status!="Cancelled").length,"Open orders")+kpi(curStr(byCur(live,o=>o.cur,soTot)),"Billed")+kpi(curStr(byCur(payDocs("S"),x=>x.cur,x=>x.bal)),"Outstanding");entRender("sales");entRender("customers")}
+function renderFin(){const L=LG.all(),inc=byCur(L.filter(l=>l.type=="Income"),l=>l.cur,l=>l.amt),exp=byCur(L.filter(l=>l.type=="Expense"),l=>l.cur,l=>l.amt),net={};[...Object.keys(inc),...Object.keys(exp)].forEach(c=>net[c]=(inc[c]||0)-(exp[c]||0));
+ $("#finK").innerHTML=kpi(curStr(inc),"Income")+kpi(curStr(exp),"Expenses")+kpi(curStr(net),"Net")+kpi(curStr(byCur(payDocs("S"),x=>x.cur,x=>x.bal)),"Receivable")+kpi(curStr(byCur(payDocs("P"),x=>x.cur,x=>x.bal)),"Payable");
+ payOpts(1);entRender("ledger");
+ const tb=(t,A,k)=>`<b>${t}</b><div class="tw"><table style="min-width:0;margin:6px 0 14px"><tbody>${A.map(x=>`<tr><td>${esc(x.no)}</td><td>${esc(x.who)}</td><td class="num">${m2(x.bal,esc(x.cur))}</td><td><button class="btn g s" onclick="payFor('${k}','${x.id}')">Record payment</button></td></tr>`).join("")||'<tr><td class="mut">Nothing outstanding.</td></tr>'}</tbody></table></div>`;
+ $("#finAP").innerHTML=tb("Receivable (customers owe you)",payDocs("S"),"S")+tb("Payable (you owe suppliers)",payDocs("P"),"P");
+ const mm={};L.forEach(l=>{const k=(l.date||"").slice(0,7)+"|"+l.cur;(mm[k]=mm[k]||{i:0,e:0})[l.type=="Income"?"i":"e"]+=l.amt});
+ $("#finM").innerHTML=Object.keys(mm).sort().reverse().map(k=>{const[m,c]=k.split("|"),v=mm[k];return`<div class="bar"><span style="width:90px">${esc(m)}</span><span style="width:auto">${esc(c)} · in ${m2(v.i)} · out ${m2(v.e)} · net <b>${m2(v.i-v.e)}</b></span></div>`}).join("")||'<p class="mut">No transactions yet.</p>'}
+function renderHR(){const E=EM.all(),a=E.filter(e=>e.status=="Active"),t=today(),out=LV.all().filter(l=>l.status=="Approved"&&l.from<=t&&l.to>=t).length;
+ $("#hrK").innerHTML=kpi(a.length,"Active staff")+kpi(curStr(byCur(a,e=>e.cur,e=>+e.salary||0)),"Monthly payroll")+kpi(LV.all().filter(l=>l.status=="Pending").length,"Pending leave",LV.all().some(l=>l.status=="Pending")?"warn":"")+kpi(out,"Away today");
+ entRender("employees");entRender("leave");const m=$("#pr_m").value;
+ $("#prB").innerHTML=a.map(e=>`<tr><td>${esc(e.name)}</td><td class="num">${m2(e.salary,esc(e.cur))}</td><td>${LG.all().some(l=>l.ref=="PAY:"+m+":"+e.id)?'<span class="chip ok">Posted</span>':'<span class="chip">Pending</span>'}</td></tr>`).join("")||'<tr><td class="mut">No active employees.</td></tr>'}
+$("#inv-boxes").innerHTML=entBox("items")+entBox("moves");$("#sales-boxes").innerHTML=entBox("sales")+entBox("customers");$("#fin-boxes").innerHTML=entBox("ledger");$("#hr-boxes").innerHTML=entBox("employees")+entBox("leave");
+$("#pay_date").value=today();$("#pr_m").value=today().slice(0,7);$("#pr_m").oninput=renderHR;ENT.sales.onReset();
 /* Backup and restore */
 let bkPend=null;
-function bkData(){return{app:"mte-procurement-desk",version:VERSION,date:new Date().toISOString(),data:{pd_pos:S,pd_seq:seq,pd_pins:pins,pd_12:H12,pd_rfq:RF,pd_docs:DOCS,pd_dseq:dseq,pd_fx:FX,pd_theme:th.value}}}
+function bkData(){return{app:"mte-procurement-desk",version:VERSION,date:new Date().toISOString(),data:{pd_pos:S,pd_seq:seq,pd_pins:pins,pd_12:H12,pd_rfq:RF,pd_docs:DOCS,pd_dseq:dseq,pd_fx:FX,pd_theme:th.value,erp:Object.fromEntries(Object.entries(REPOS).map(([k,r])=>[k,r.all()]))}}}
 async function bkSave(){$("#bkMsg").textContent=await saveFile("mte-procurement-backup-"+today()+".json",JSON.stringify(bkData(),null,1),"application/json")}
 $("#bkFile").onchange=async e=>{const f=e.target.files[0];e.target.value="";if(!f)return;const m=$("#bkMsg");try{const j=JSON.parse(await f.text());if(j.app!="mte-procurement-desk"||!j.data||!Array.isArray(j.data.pd_pos))throw 0;bkPend=j.data;m.innerHTML=`Backup from ${esc((j.date||"").slice(0,10))}: ${j.data.pd_pos.length} POs, ${(j.data.pd_docs||[]).length} documents, ${(j.data.pd_rfq||[]).length} RFQ drafts, ${(j.data.pd_fx||[]).length} rates. Restoring replaces everything now in this browser. <button class="btn s" onclick="bkApply()">Replace my data</button> <button class="btn g s" onclick="bkPend=null;$('#bkMsg').textContent=''">Cancel</button>`}catch(x){bkPend=null;m.textContent="That file is not a valid MTE Procurement Desk backup."}};
 function bkApply(){const d=bkPend;if(!d)return;S=d.pd_pos;S.forEach(p=>{if(!p.items)p.items=[{d:p.item,q:p.qty,p:p.pr}]});seq=d.pd_seq||S.length;pins=d.pd_pins||pins;H12=!!d.pd_12;RF=d.pd_rfq||[];DOCS=d.pd_docs||[];dseq=d.pd_dseq||DOCS.length;FX=d.pd_fx||[];
  save();store.set("pd_pins",pins);store.set("pd_12",H12);store.set("pd_rfq",RF);store.set("pd_docs",DOCS);store.set("pd_dseq",dseq);store.set("pd_fx",FX);
- th.value=d.pd_theme||"";applyTh();$("#hfmt").value=H12?"12":"24";bkPend=null;openId=null;resetForm();docReset();show(document.querySelector("section.tab.on").id.slice(2));$("#bkMsg").textContent="Backup restored."}
+ if(d.erp)for(const k in REPOS)REPOS[k].replace(d.erp[k]||[]);th.value=d.pd_theme||"";applyTh();$("#hfmt").value=H12?"12":"24";bkPend=null;openId=null;resetForm();docReset();show(document.querySelector("section.tab.on").id.slice(2));$("#bkMsg").textContent="Backup restored."}
 document.addEventListener("input",e=>{const t=e.target,id=t.id||"";
- if(t.dataset.k){const P=t.dataset.g=="p";(P?PL:LN)[+t.dataset.i][t.dataset.k]=t.value;if(!P)docPreview();return}
+ if(t.dataset.k){const g=t.dataset.g,P=g=="p";(P?PL:g=="s"?SL:LN)[+t.dataset.i][t.dataset.k]=t.value;if(!P&&g!="s")docPreview();return}
  if(id=="d_type"&&/^(PI|INV|POD)-/.test($("#d_no").value))$("#d_no").value=dNo();
  if(id.startsWith("d_"))docPreview();
  if(id.startsWith("x_"))xRender();
